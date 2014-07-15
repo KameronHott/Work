@@ -1,0 +1,22 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace YRMC.SecureLogin.Web.Controllers
+{
+    public class RoleController : Controller
+    {
+        [AcceptVerbs(HttpVerbs.Get)]
+        public JsonResult List()
+        {
+            return Json(((Business.Security.SecurityIdentity)Csla.ApplicationContext.User.Identity)
+                .Roles.Select(o => new
+                {
+                    id = o.Key,
+                    name = o.Value
+                }), JsonRequestBehavior.AllowGet);
+        }
+    }
+}

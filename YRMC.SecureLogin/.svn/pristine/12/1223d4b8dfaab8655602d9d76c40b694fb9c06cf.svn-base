@@ -1,0 +1,869 @@
+﻿@{
+    ViewBag.Title = "Secure Password";
+    ViewBag.StyleSheets = new string[] {
+        Url.Content("~/Content/site.css"),
+        Url.Content("~/Content/style.css"),
+    };
+}
+
+
+@section TitleContent {
+<script src="https://cdn.yrmc.org/js/jquery-1.8/development-bundle/ui/jquery-ui-1.8.13.custom.js" type="text/javascript"></script>
+<script src="https://cdn.yrmc.org/js/jquery-1.8/development-bundle/ui/jquery.ui.core.js" type="text/javascript"></script>
+<script src="https://cdn.yrmc.org/js/jquery-1.8/development-bundle/ui/jquery.ui.widget.js" type="text/javascript"></script>
+<script src="https://cdn.yrmc.org/js/jquery-1.8/development-bundle/ui/jquery.ui.tabs.js" type="text/javascript"></script>
+<script src="https://cdn.yrmc.org/js/jquery-plugins/jquery.tablesorter.js" type="text/javascript"></script>
+<script src="https://cdn.yrmc.org/js/zeroclipboard/ZeroClipboard.js" type="text/javascript"></script>
+<script src="https://cdn.yrmc.org/js/firebug-lite/build/firebug-lite.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+    $.NewLogin = {
+        Initialize: function () {
+            // Add Default Button to Search
+            $(function () {
+                $('#frmNewLogin').keypress(function (e) {
+                    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+                        $('#btnNewLoginSave').click();
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+            });
+        },
+
+        Show: function () {
+            $.Logins.Hide();
+            $.Users.Hide();
+
+            $('#newlogin').show();
+            $.NewLogin.Load();
+        },
+
+        Hide: function () {
+            $('#newlogin').hide();
+        },
+
+        Load: function () {
+            $.NewLogin.LoadCategories(null);
+
+            $('#ddlNewLoginRole').html('');
+
+            $.getJSON('@Url.Content("~/Role/List")', function (data) {
+                $.each(data, function () {
+                    $('#ddlNewLoginRole').append($("<option/>", { value: this.id }).html(this.name));
+                });
+            });
+
+            $('#txtNewLoginUsername').val('');
+            $('#txtNewLoginPassword').val('');
+            $('#txtNewLoginDescription').val('');
+
+            $('#ddlNewLoginCategory').focus();
+        },
+
+        LoadCategories: function (selectId) {
+            $('#ddlNewLoginCategory').html('');
+
+            $.getJSON('@Url.Content("~/Category/List")', function (data) {
+                $.each(data, function () {
+                    if (selectId == this.id)
+                        $('#ddlNewLoginCategory').append($('<option/>', { value: this.id, selected: 'selected' }).html(this.name));
+                    else
+                        $('#ddlNewLoginCategory').append($('<option/>', { value: this.id }).html(this.name));
+                });
+
+                $('#ddlNewLoginCategory').hide();
+                $('#ddlNewLoginCategory').show();
+            });
+        },
+
+        Save: function () {
+            $.post('@Url.Content("~/Login/Create")', {
+                categoryid: $('#ddlNewLoginCategory').val(),
+                roleid: $('#ddlNewLoginRole').val(),
+                username: $('#txtNewLoginUsername').val(),
+                password: $('#txtNewLoginPassword').val(),
+                description: $('#txtNewLoginDescription').val()
+            }, function (data) {
+                $.NewLogin.Load();
+                ShowMessage(data);
+            }, 'json')
+            .complete(function () {
+            });
+        },
+
+        AddCategory: function () {
+            var name = prompt("Enter the category name.", "")
+
+            if (name != null && name != '') {
+                $.post('@Url.Content("~/Category/Create")', { name: name }, function (data) {
+                    $.NewLogin.LoadCategories(data.id);
+                }, 'json')
+                .complete(function () {
+                });
+            }
+        },
+
+        RandomPassword: function () {
+            var iteration = 0;
+            var password = "";
+            var randomNumber;
+            var special = true;
+            var length = 15;
+            var special = false;
+            while (iteration < length) {
+                special = Math.round(Math.random());
+                randomNumber = (Math.floor(Math.random() * 100) % 94) + 33;
+
+                if (!special) {
+                    if ((randomNumber >= 33) && (randomNumber <= 47)) { continue; }
+                    if ((randomNumber >= 58) && (randomNumber <= 64)) { continue; }
+                    if ((randomNumber >= 91) && (randomNumber <= 96)) { continue; }
+                    if ((randomNumber >= 123) && (randomNumber <= 126)) { continue; }
+                }
+
+                iteration++;
+                password += String.fromCharCode(randomNumber);
+            }
+            $('#txtNewLoginPassword').val(password);
+        }
+    };
+
+    $.Logins = {
+        Initialize: function () {
+            // Add Default Button to Search
+            $(function () {
+                $('#frmLoginSearch').keypress(function (e) {
+                    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+                        $('#btnLoginSearch').click();
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+            });
+        },
+
+        Show: function () {
+            $.NewLogin.Hide();
+            $.Users.Hide();
+            $('#logins').show();
+            $('#txtLoginSearch').focus();
+        },
+
+        Hide: function () {
+            $('#logins').hide();
+        },
+
+        Find: function () {
+            var searchText = $('#txtLoginSearch').val();
+            var searchBy = $('#ddlLoginSearchBy').val();
+
+            $('#divLoginList').html('');
+
+            // Clear all ZeroClipboardMovie_N objects.
+            $.each($('[id^="ZeroClipboardMovie_"]'), function () {
+                $(this).parent().remove();
+            });
+
+            $.getJSON('@Url.Content("~/Login/List")', { 'searchBy': searchBy, 'searchText': searchText }, function (logins) {
+                var listingTHead = $('<thead/>')
+                    .append($('<tr/>')
+                        .append($('<th/>', { width: '20%' }).html('Category'))
+                        .append($('<th/>', { width: '20%' }).html('Role'))
+                        .append($('<th/>', { width: '20%' }).html('Description'))
+                        .append($('<th/>', { width: '20%' }).html('Username'))
+                        .append($('<th/>', { width: '20%' }).html('Password'))
+                        .append($('<th/>', { width: '40px' }))
+                        .append($('<th/>', { width: '60px' }))
+                    );
+                var listingTBody = $('<tbody/>');
+
+                $.each(logins, function () {
+                    var login = this;
+
+                    listingTBody
+                        .append($('<tr/>', { id: 'trLogin' + this.entryid })
+                            .append($('<td/>', { id: 'tdLoginCategory' + this.entryid }).html(this.categoryname))
+                            .append($('<td/>', { id: 'tdLoginRole' + this.entryid }).html(this.rolename))
+                            .append($('<td/>', { id: 'tdLoginDescription' + this.entryid }).html(this.description))
+                            .append($('<td/>', { id: 'tdLoginUsername' + this.entryid }).html(this.username))
+                            .append($('<td/>')
+                                .append($('<input/>', { type: 'text', id: 'txtLoginPassword' + this.entryid, value: '********', style: 'width: 100%' }).addClass('label'))
+                            )
+                            .append($('<td/>')
+                                .append($('<input/>', { id: 'btnLoginShowCopy' + this.entryid, type: 'button', value: 'show' })
+                                    .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                                    .click(function () {
+                                        $.Logins.ShowPassword(login.entryid);
+                                    })
+                                )
+                            )
+                            .append($('<td/>', { style: 'text-align:center;' })
+                                .append($('<input/>', { id: 'btnShowDetail', type: 'button', value: 'view' })
+                                    .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                                    .click(function () {
+                                        $.Logins.ShowDetail(login.id, login.entryid);
+                                    })
+                                )
+                            )
+                        );
+                });
+
+                $('#divLoginList').append(
+                    $('<table/>', { cellspacing: 1, id: 'tblLoginList' })
+                        .addClass('tablesorter')
+                        .append(listingTHead)
+                        .append(listingTBody)
+                );
+
+                if (logins.length > 0) {
+                    $('#tblLoginList').tablesorter({
+                        sortList: [[0, 0]],
+                        widgets: ['zebra'],
+                        headers: { 4: { sorter: false }, 5: { sorter: false }, 6: { sorter: false} }
+                    })
+                    .bind('sortStart', function () {
+                        if ($(event.srcElement).parents('table')[0].id.indexOf('tblLoginList') == 0) {
+                            $.each($('tr[id^="trLoginDetail"]'), function () {
+                                $(this).remove();
+                            });
+                        }
+                    });
+                }
+            })
+            .complete(function () {
+            });
+        },
+
+        ClearFind: function () {
+            $('#txtLoginSearch').val('');
+            $('#ddlLoginSearchBy').val(1);
+            $('#txtLoginSearch').focus();
+
+            $('#divLoginList').html('');
+
+            // Clear all ZeroClipboardMovie_N objects.
+            $.each($('[id^="ZeroClipboardMovie_"]'), function () {
+                $(this).parent().remove();
+            });
+        },
+
+        Delete: function (loginId, entryId) {
+            if (confirm("Are you sure you want to delete?")) {
+                $.post('@Url.Content("~/Login/Delete")', { loginId: loginId }, function (data) {
+                    ShowMessage(data);
+
+                    $('#trLogin' + entryId).remove();
+                    $('#trLoginDetail' + entryId).remove();
+                }, 'json')
+                .complete(function () {
+                });
+            }
+        },
+
+        Update: function (loginId, entryId) {
+            $.post('@Url.Content("~/Login/Update")', {
+                id: loginId,
+                categoryid: $('#ddlLoginDetailCategory' + entryId).val(),
+                roleid: $('#ddlLoginDetailRole' + entryId).val(),
+                username: $('#txtLoginDetailUsername' + entryId).val(),
+                password: $('#txtLoginDetailPassword' + entryId).val(),
+                description: $('#txtLoginDetailDescription' + entryId).val()
+            }, function (data) {
+                ShowMessage(data);
+
+                $('#tdLoginCategory' + entryId).html($('#ddlLoginDetailCategory' + entryId + ' option:selected').html());
+                $('#tdLoginRole' + entryId).html($('#ddlLoginDetailRole' + entryId + ' option:selected').html());
+                $('#tdLoginDescription' + entryId).html($('#txtLoginDetailDescription' + entryId).val());
+                $('#tdLoginUsername' + entryId).html($('#txtLoginDetailUsername' + entryId).val());
+
+                $('#trLoginDetail' + entryId).remove();
+            }, 'json')
+            .complete(function () {
+            });
+        },
+
+        ShowPassword: function (entryId) {
+            var password = $('#txtLoginPassword' + entryId).attr('title');
+
+            if ($('#btnLoginShowCopy' + entryId).val() == 'show') {
+                $('#btnLoginShowCopy' + entryId).val('copy');
+
+                $.getJSON('@Url.Content("~/Login/Password")', { 'entryId': entryId }, function (data) {
+                    $('#txtLoginPassword' + entryId).val(data.password);
+
+                    var clip = new ZeroClipboard.Client();
+                    clip.setText(data.password);
+                    clip.addEventListener('complete', function (client, text) {
+                        clip.destroy();
+                        $('#btnLoginShowCopy' + entryId).val('show');
+                        $('#txtLoginPassword' + entryId).val('********');
+                    });
+                    clip.glue('btnLoginShowCopy' + entryId);
+                });
+            }
+        },
+
+        ShowDetail: function (loginId, entryId) {
+            if ($('#trLoginDetail' + entryId).length == 0) {
+                //Create the row and put after the calling row
+                $('<tr/>', { id: 'trLoginDetail' + entryId })
+                    .insertAfter($('#trLogin' + entryId).closest('tr'))
+                    .append($('<td/>', { colspan: 7 })
+                        .append($('<div/>', { id: 'divLoginDetail' + entryId })
+                            .append($('<div/>', { style: 'padding: 4px; float:left', id: 'divLoginDetailHistory' + entryId }))
+                        )
+                    );
+
+                // Get login history here
+                $('#divLoginDetailHistory' + entryId)
+                    .append($('<div/>')
+                        .addClass('largeouterlist')
+                        .append($('<div/>', { style: 'height: 204px' })
+                            .addClass('innerlist')
+                            .append($('<table/>', { id: 'tblLoginDetailHistory' + entryId, style: 'margin: 0' })
+                                .addClass('tablesorter')
+                                .append($('<thead/>')
+                                    .append($('<tr/>')
+                                        .append($('<th/>')
+                                            .addClass('small')
+                                            .html('DateTime')
+                                        )
+                                        .append($('<th/>')
+                                            .addClass('small')
+                                            .html('DoneBy')
+                                        )
+                                        .append($('<th/>')
+                                            .addClass('small')
+                                            .html('Action')
+                                        )
+                                    )
+                                )
+                                .append($('<tbody/>'))
+                            )
+                        )
+                    );
+
+                $.getJSON('@Url.Content("~/Login/Logs")', { 'entryId': entryId }, function (data) {
+                    var historyTBody = $('#tblLoginDetailHistory' + entryId).children('tbody');
+
+                    $.each(data, function () {
+                        // Build history table
+                        historyTBody.append($('<tr/>')
+                            .append($('<td/>')
+                                .addClass('small')
+                                .html(this.modifieddate)
+                            )
+                            .append($('<td/>')
+                                .addClass('small')
+                                .html(this.madeby)
+                            )
+                            .append($('<td/>')
+                                .addClass('small')
+                                .html(this.actiondone)
+                            )
+                        );
+                    });
+
+                    $('#tblLoginDetailHistory' + entryId).tablesorter({
+                        widgets: ['zebra']
+                    });
+                });
+
+                $.getJSON('@Url.Content("~/Login")', { 'entryId': entryId }, function (login) {
+                    var deleteButton = $('<input/>', { type: 'button', style: 'float:right', id: 'btnLoginDetailDelete' + entryId, value: 'Delete Login' })
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(function () {
+                            $.Logins.Delete(login.id, login.entryid);
+                        });
+
+                    var updateButton = $('<input/>', { type: 'button', style: 'float:right; margin-right:5px', id: 'btnLoginDetailUpdate' + entryId, value: 'Update' })
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(function () {
+                            $.Logins.Update(login.id, login.entryid);
+                        });
+
+                    var categoryBlock = $('<select/>', { id: 'ddlLoginDetailCategory' + entryId })
+                        .addClass('ui-widget ui-corner-all')
+
+                    $.getJSON('@Url.Content("~/Category/List")', function (data) {
+                        $.each(data, function () {
+                            if (login.categoryid == this.id) {
+                                categoryBlock.append($('<option/>', { value: this.id, selected: 'selected' }).html(this.name));
+                            } else {
+                                categoryBlock.append($('<option/>', { value: this.id }).html(this.name));
+                            }
+                        });
+                    });
+
+                    var roleBlock = $("<select/>", { id: 'ddlLoginDetailRole' + entryId })
+                        .addClass('ui-widget ui-corner-all')
+
+                    $.getJSON('@Url.Content("~/Role/List")', function (data) {
+                        $.each(data, function () {
+                            if (login.roleid == this.id) {
+                                roleBlock.append($("<option/>", { value: this.id, selected: 'selected' }).html(this.name));
+                            }
+                            else {
+                                roleBlock.append($("<option/>", { value: this.id }).html(this.name));
+                            }
+                        });
+                    });
+
+                    var descriptionBlock = $("<textarea/>", { id: 'txtLoginDetailDescription' + entryId, cols: '40', rows: '2' })
+                        .addClass('ui-widget ui-corner-all').val(login.description);
+
+                    var usernameBlock = $('<input/>', { type: 'text', id: 'txtLoginDetailUsername' + entryId, size: '15' })
+                        .addClass('ui-widget ui-corner-all').val(login.username);
+
+                    var passwordBlock = $('<input/>', { type: 'text', id: 'txtLoginDetailPassword' + entryId, size: '15' })
+                        .addClass('ui-widget ui-corner-all').val('********')
+                        .focus(function () {
+                            if ($(this).val() == '********')
+                                $(this).val('');
+                        })
+                        .blur(function () {
+                            if ($(this).val() == '')
+                                $(this).val('********');
+                        });
+
+                    $('#divLoginDetail' + entryId).append($('<div/>', { id: 'divLoginDetailFields' + entryId })
+                        .append($('<div/>', { style: 'float: right;' })
+                            .append(updateButton)
+                            .append(deleteButton)
+                        )
+                        .append($('<div/>')
+                            .append($('<div/>')
+                                .append($('<label/>', { 'for': 'ddlLoginDetailCategory' + entryId, style: 'float: left; width: 75px;' }).html('Category:'))
+                                .append(categoryBlock)
+                            )
+                            .append($('<div/>', { style: 'margin-top: 5px;' })
+                                .append($('<label/>', { 'for': 'ddlLoginDetailRole' + entryId, style: 'float: left; width: 75px;' }).html('Role:'))
+                                .append(roleBlock)
+                            )
+                            .append($('<div/>', { style: 'margin-top: 5px;' })
+                                .append($('<label/>', { 'for': 'txtLoginDetailUsername' + entryId, style: 'float: left; width: 75px;' }).html('Username:'))
+                                .append(usernameBlock)
+                            )
+                            .append($('<div/>', { style: 'margin-top: 4px;' })
+                                .append($('<label/>', { 'for': 'txtLoginDetailPassword' + entryId, style: 'float: left; width: 75px;' }).html('Password:'))
+                                .append(passwordBlock)
+                            )
+                            .append($('<div/>', { style: 'margin-top: 4px;' })
+                                .append($('<label/>', { 'for': 'txtLoginDetailDescription' + entryId, style: 'float: left; width: 75px;' }).html('Description:'))
+                                .append($('<div/>')
+                                    .append(descriptionBlock)
+                                )
+                            )
+                        )
+                    );
+                });
+            } else {
+                $('#trLoginDetail' + entryId).remove();
+            }
+        }
+    };
+
+    $.Users = {
+        Initialize: function () {
+            // Add Default Button to Search
+            $(function () {
+                $('#frmUserAdd').keypress(function (e) {
+                    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+                        $('#btnUserAdd').click();
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+            });
+        },
+
+        Show: function () {
+            $.NewLogin.Hide();
+            $.Logins.Hide();
+
+            $('#users').show();
+            // Get User List
+            $.Users.List();
+        },
+
+        Hide: function () {
+            $('#users').hide();
+        },
+
+        Add: function () {
+            $.post('@Url.Content("~/User/Add")', {
+                username: $('#txtUserAdd').val()
+            }, function (data) {
+                ShowMessage(data);
+
+                $.Users.List();
+                $('#txtUserAdd').val('');
+            })
+            .complete(function () {
+            });
+        },
+
+        List: function () {
+            $('#divUserList').html('');
+
+            $.getJSON('@Url.Content("~/User/List")', {}, function (users) {
+                var listingTHead = $('<thead/>')
+                    .append($('<tr/>')
+                        .append($('<th/>', { width: '34%' }).html('Username'))
+                        .append($('<th/>', { width: '33%' }).html('Roles'))
+                        .append($('<th/>', { width: '33%' }).html('Active'))
+                        .append($('<th/>', { width: '60px' }))
+                    );
+                var listingTBody = $('<tbody/>');
+
+                $.each(users, function () {
+                    var user = this;
+                    var ulRoles = $('<div/>');
+
+                    $.each(this.roles, function () {
+                        ulRoles.append($('<li/>').html(this.name));
+                    });
+
+                    listingTBody
+                        .append($('<tr/>', { id: 'trUser' + this.id })
+                            .append($('<td/>', { id: 'tdUserUsername' + this.id }).html(this.username))
+                            .append($('<td/>', { id: 'tdUserRoles' + this.id }).html(ulRoles))
+                            .append($('<td/>', { id: 'tdUserActive' + this.id }).html(this.active ? "True" : "False"))
+                            .append($('<td/>', { style: 'text-align:center;' })
+                                .append($('<input/>', { id: 'btnShowDetail', type: 'button', value: 'view' })
+                                    .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                                    .click(function () {
+                                        $.Users.ShowDetail(user.id);
+                                    })
+                                )
+                            )
+                        );
+                });
+
+                $('#divUserList').append(
+                    $('<table/>', { cellspacing: 1, id: 'tblUserList' })
+                        .addClass('tablesorter')
+                        .append(listingTHead)
+                        .append(listingTBody)
+                );
+
+                $('#tblUserList').tablesorter({
+                    sortList: [[0, 0]],
+                    widgets: ['zebra'],
+                    headers: { 3: { sorter: false} }
+                })
+                .bind('sortStart', function () {
+                    if ($(event.srcElement).parents('table')[0].id.indexOf('tblUserList') == 0) {
+                        $.each($('tr[id^="trUserDetail"]'), function () {
+                            $(this).remove();
+                        });
+                    }
+                });
+            })
+            .complete(function () {
+            });
+        },
+
+        Update: function (userId) {
+            var roles = $('#lstUserDetailRole' + userId).val();
+            var ulRoles = $('<div/>');
+
+            if (roles == null)
+                roles = [];
+
+            $.each(roles, function () {
+                ulRoles.append($('<li/>').html($('#lstUserDetailRole' + userId + ' option[value="' + this + '"]').html()));
+            });
+
+            $.post('@Url.Content("~/User/Update")', {
+                id: userId,
+                roles: roles,
+                active: $('#chkUserDetailActive' + userId).is(':checked')
+            }, function (data) {
+                ShowMessage(data);
+
+                $('#tdUserRoles' + userId).html(ulRoles);
+                $('#tdUserActive' + userId).html($('#chkUserDetailActive' + userId).attr('checked') ? "True" : "False");
+
+                $('#trUserDetail' + userId).remove();
+            }, 'json')
+            .complete(function () {
+            });
+        },
+
+        AddRole: function (userId) {
+            var name = prompt("Enter the role name.", "")
+
+            if (name != null && name != '') {
+                $.post('@Url.Content("~/Role/Create")', { name: name }, function (data) {
+                    $.each($('[id^="lstUserDetailRole"]'), function () {
+                        var added = false;
+
+                        $.each($(this).children('option'), function () {
+                            if ($(this).html().toLowerCase() > data.name.toLowerCase()) {
+                                $("<option/>", { value: data.id }).html(data.name).insertBefore($(this));
+                                added = true;
+                                return false;
+                            }
+                        });
+
+                        if (!added)
+                            $(this).append($("<option/>", { value: data.id }).html(data.name));
+                    });
+                }, 'json')
+                .complete(function () {
+                });
+            }
+        },
+
+        ShowDetail: function (userId) {
+            if ($('#trUserDetail' + userId).length == 0) {
+                //Create the row and put after the calling row
+                $('<tr/>', { id: 'trUserDetail' + userId })
+                    .insertAfter($('#trUser' + userId).closest('tr'))
+                    .append($('<td/>', { colspan: 7 })
+                        .append($('<div/>', { id: 'divUserDetail' + userId }))
+                    );
+
+                $.getJSON('@Url.Content("~/User")', { 'userId': userId }, function (user) {
+                    var updateButton = $('<input/>', { type: 'button', style: 'float:right; margin-right:5px', id: 'btnUserDetailUpdate' + userId, value: 'Update' })
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only')
+                        .click(function () {
+                            $.Users.Update(user.id);
+                        });
+
+                    var roleBlock = $("<select/>", { id: 'lstUserDetailRole' + userId, multiple: 'multiple', style: 'width: 200px; height: 150px;' })
+                        .addClass('ui-widget ui-corner-all')
+
+                    $.getJSON('@Url.Content("~/Role/List")', function (data) {
+                        $.each(data, function () {
+                            var selected = false;
+
+                            for (i = 0; i < user.roles.length; i++) {
+                                if (this.id == user.roles[i].id) {
+                                    selected = true;
+                                    break;
+                                }
+                            }
+
+                            if (selected) {
+                                roleBlock.append($("<option/>", { value: this.id, selected: 'selected' }).html(this.name));
+                            }
+                            else {
+                                roleBlock.append($("<option/>", { value: this.id }).html(this.name));
+                            }
+                        });
+                    });
+
+                    var usernameBlock = $('<span/>', { id: 'lblUserDetailUsername' + userId })
+                        .addClass('label')
+                        .html(user.username);
+
+                    var activeBlock = $('<input/>', { id: 'chkUserDetailActive' + userId, type: 'checkbox' })
+                        .addClass('ui-widget ui-corner-all')
+                        .attr('checked', user.active);
+
+                    $('#divUserDetail' + userId).append($('<div/>', { id: 'divUserDetailFields' + userId }))
+                        .append($('<div/>', { style: 'float: right;' })
+                            .append(updateButton))
+                        .append($('<table/>')
+                            .append($('<tbody/>')
+                                .append($('<tr/>')
+                                    .append($('<td/>', { style: 'vertical-align: middle; width: 50px' })
+                                        .html($('<label/>').html('Username:'))
+                                    )
+                                    .append($('<td/>').append(usernameBlock))
+                                )
+                                .append($('<tr/>')
+                                    .append($('<td/>', { colspan: 2 })
+                                        .append($('<label/>', { 'for': 'lstUserDetailRole' + userId }).html('Roles:'))
+                                        .append($('<img/>', { src: '@Url.Content("~/Content/")add.png', alt: 'Add Role' })
+                                            .click(function () {
+                                                $.Users.AddRole(userId);
+                                            })
+                                        )
+                                        .append($('<br/>'))
+                                        .append(roleBlock))
+                                )
+                                .append($('<tr/>')
+                                    .append($('<td/>', { style: 'vertical-align: middle; width: 50px' })
+                                        .html($('<label/>', { 'for': 'chkUserDetailActive' + userId }).html('Active:'))
+                                    )
+                                    .append($('<td/>').append(activeBlock))
+                                )
+                            )
+                        );
+                });
+            } else {
+                $('#trUserDetail' + userId).remove();
+            }
+        }
+    };
+</script>
+
+<script type="text/javascript" charset="utf-8">
+    ZeroClipboard.setMoviePath('https://cdn.yrmc.org/js/zeroclipboard/ZeroClipboard10.swf');
+
+    $(document).ready(function () {
+        jQuery.ajaxSettings.traditional = true;
+
+        $.NewLogin.Initialize();
+        $.Logins.Initialize();
+        $.Users.Initialize();
+
+        $.getJSON('@Url.Content("~/User/Current")', {}, function (data) {
+            $('#lblUsername').html('Welcome ' + data.fullname);
+            
+            if (data.isadmin) {
+                $('#btnUsers').show();
+            } else {
+                $('#btnUsers').hide();
+            }
+
+            $.Logins.Show();
+        });
+
+        $(this).ajaxError(function (event, jqXHR, ajaxSettings, thrownError) {
+            var data = $.parseJSON(jqXHR.responseText);
+
+            if (data.message != null)
+                ShowMessage(data);
+        });
+    });
+
+    function ShowMessage(data) {
+        var message = $('<div/>', {
+            id: 'message',
+            style: 'position: fixed; top: 10px; right: 10px; width: 300px; height: auto; padding-left: 10px; padding-right: 10px;',
+            verticalAlign: 'top',
+            align: 'left'
+        })
+        .addClass('ui-state-highlight')
+        .addClass('ui-corner-all')
+        .addClass('ui-floating-message')
+        .hide();
+
+        if (data.message != 'Unauthorized') {
+            message.append($('<p/>')
+                .append($('<span/>', { style: 'float:left; margin-right:.3em;' })
+                .addClass('ui-icon ui-icon-info'))
+                .append('<a>' + data.message + '</a>')
+            );
+        } else {
+            $('#lblUsername').html('');
+            $('#btnAdd').hide();
+            $('#btnList').hide();
+
+            message.append($('<p/>')
+                .append($('<span/>', { style: 'float:left; margin-right:.3em;' })
+                    .addClass('ui-icon ui-icon-alert')
+                )
+                .append($('</a>').html('You do not have access!')
+                    .addClass('ui-state-error')
+                )
+            );
+        }
+
+        if (data.brokenRules != null) {
+            var ul = $('<ul/>');
+
+            $.each(data.brokenRules, function (key, value) {
+                ul.append('<p><li>' + value.description + '</li></p>');
+            });
+
+            message.append(ul);
+        }
+
+        $(document.body).append(message);
+
+        message.show('drop', { direction: 'right' }, function () {
+            message.timerId = setTimeout(function () {
+                if ($('[id="message"]').length == 1) {
+                    message.hide('drop', { direction: 'right' }, function () {
+                        message.remove();
+                    });
+                } else {
+                    message.remove();
+                }
+            }, '5000');
+        });
+    }
+</script>
+<div>
+    <img src="@Url.Content("~/Content/")YRMC.PNG" alt="YRMC" />
+    <div class="header">
+        Secure Login
+    </div>
+    <p id="lblUsername">&nbsp;</p>
+    <div>
+        <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnAdd" onclick="$.NewLogin.Show();" value="Add a new login"/> 
+        <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="btnList" onclick="$.Logins.Show();" value="Find login(s)"/> 
+        <input type="button" id="btnUsers" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="$.Users.Show();" value="Add/Edit a User"/>
+    </div>
+    <div style="padding-top: 1em;">
+        <div id="newlogin" style="display: none;"
+            <form id="frmNewLogin">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label for="ddlNewLoginCategory">Category:</label></td>
+                            <td>
+                                <select id="ddlNewLoginCategory" class="ui-widget ui-corner-all"></select>
+                                <img src="@Url.Content("~/Content/")add.png" alt="Add Category" onclick="$.NewLogin.AddCategory();" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="ddlNewLoginRole">Role:</label></td>
+                            <td><select id="ddlNewLoginRole" class="ui-widget ui-corner-all"></select></td>
+                        </tr>
+                        <tr>
+                            <td><label for="txtNewLoginUsername">Username:</label></td>
+                            <td><input class="ui-widget ui-corner-all" type="text" id="txtNewLoginUsername" size="20px" /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="txtNewLoginPassword">Password:</label></td>
+                            <td>
+                                <input type="text" id="txtNewLoginPassword" size="20px" class="ui-widget ui-corner-all" />
+                                <img src="@Url.Content("~/Content/")key_add.png" alt="Random Password" onclick="$.NewLogin.RandomPassword();" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="txtNewLoginDescription">Description:</label></td>
+                            <td><textarea class="ui-widget ui-corner-all" id="txtNewLoginDescription" cols="40" rows="2"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><input type="button" value="Save" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" name="btnNewLoginSave" onclick="$.NewLogin.Save();" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+        <div id="logins" style="display: none;">
+            <form id="frmLoginSearch">
+                <input type="text" id="txtLoginSearch" style="width: 100px;" class="ui-widget ui-corner-all" />
+                <select id="ddlLoginSearchBy" class="ui-widget ui-corner-all">
+                    <option value="1">All</option>
+                    <option value="2">Category</option>
+                    <option value="3">Role</option>
+                    <option value="4">Description</option>
+                    <option value="5">Username</option>
+                </select>
+                <input type="button" id="btnLoginSearch" value="Search" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="$.Logins.Find()" />
+                <input type="button" id="btnLoginClearSearch" value="Clear" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="$.Logins.ClearFind()" />
+            </form>
+            <div id="divLoginList"></div>
+        </div>
+        <div id="users" style="display: none;">
+            <form id="frmUserAdd">
+                <input type="text" class="ui-widget ui-corner-all" id="txtUserAdd" size="20px" />
+                <input type="button" id="btnUserAdd" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="$.Users.Add();" value="Add User" />
+            </form>
+            <div id="divUserList"> </div>
+        </div>
+    </div>
+</div>

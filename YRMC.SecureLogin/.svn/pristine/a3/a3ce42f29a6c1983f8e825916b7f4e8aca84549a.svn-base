@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace YRMC.SecureLogin.Emergency
+{
+    public partial class frmSecureLogin : Form
+    {
+        public frmSecureLogin()
+        {
+            InitializeComponent();
+        }
+
+        private void tbMasterkey_TextChanged(object sender, EventArgs e)
+        {
+            tbPasswordHash.Enabled = true;
+            if (tbPassword.Text == "Invalid Master Key!" && tbPasswordHash.Text.Length > 2) DecryptIt();
+            if (tbPasswordHash.Text.Length > 2 && tbMasterkey.Text != "!YRMCProgrammers!") tbPassword.Text = "Invalid Master Key!";
+        }
+
+        private void tbPasswordHash_TextChanged(object sender, EventArgs e)
+        {
+            //Looking for !YRMCProgrammers! as the master key
+            if (tbMasterkey.Text != "!YRMCProgrammers!")
+            {
+                tbPassword.Text = "Invalid Master Key!";
+            }
+            else
+            {
+                DecryptIt();
+            }
+        }
+
+        private void DecryptIt()
+        {
+            tbPassword.Text = Code.Utilities.Extensions.StringExtensions.Decrypt(tbPasswordHash.Text, tbMasterkey.Text);
+        }
+    }
+}

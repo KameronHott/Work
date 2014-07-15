@@ -1,0 +1,88 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Objects;
+using System.Data.Objects.DataClasses;
+using System.Linq;
+using System.Text;
+using Csla.Reflection;
+
+namespace YRMC.SecureLogin.Business.Common
+{
+    [Serializable]
+    public class ReadOnlyBase<T, D, E> : Csla.ReadOnlyBase<T>
+        where T : ReadOnlyBase<T, D, E>
+        where D : ObjectContext
+        where E : EntityObject
+    {
+        #region [ Constructors ]
+
+        protected ReadOnlyBase()
+        {
+        }
+
+        protected ReadOnlyBase(E entity)
+        {
+            OnLoadProperties(entity);
+        }
+
+        protected ReadOnlyBase(object entity)
+        {
+            OnLoadProperties(entity);
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        public static Csla.PropertyInfo<Guid> IDProperty = RegisterProperty<Guid>(c => c.ID);
+        public Guid ID
+        {
+            get { return GetProperty(IDProperty); }
+            private set { LoadProperty(IDProperty, value); }
+        }
+
+        #endregion
+
+        #region [ Business Rules ]
+
+        protected override void AddBusinessRules()
+        {
+            base.AddBusinessRules();
+
+            //BusinessRules.AddRule(new Csla.Rules.CommonRules.IsInRole(Csla.Rules.AuthorizationActions.ReadProperty, IDProperty, typeof(User).Name + ".ID.Read"));
+        }
+
+        #endregion
+
+        #region [ Authorization Rules ]
+
+        private static void AddObjectAuthorizationRules()
+        {
+            //Csla.Rules.BusinessRules.AddRule(typeof(T), new Csla.Rules.CommonRules.IsInRole(Csla.Rules.AuthorizationActions.GetObject, typeof(T).Name + ".Get()"));
+        }
+
+        #endregion
+
+        #region [ Methods ]
+
+        protected void LoadProperties(E entity)
+        {
+            OnLoadProperties(entity);
+        }
+
+        #endregion
+
+        #region [ Events ]
+
+        protected virtual void OnLoadProperties(E entity)
+        {
+            LoadProperty(IDProperty, MethodCaller.GetPropertyDescriptor(typeof(E), "ID").GetValue(entity));
+        }
+
+        protected virtual void OnLoadProperties(dynamic entity)
+        {
+        }
+
+        #endregion
+    }
+}

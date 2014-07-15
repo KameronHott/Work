@@ -1,0 +1,149 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Csla;
+using Code.Utilities.Extensions;
+
+namespace YRMC.SecureLogin.Business.Edits
+{
+    [Serializable]
+    public class Login : Common.BusinessBase<Login, Data.SecurePasswordEntities, Data.Login>
+    {
+        #region [ Properties ]
+
+        public static PropertyInfo<Guid> EntryIDProperty = RegisterProperty<Guid>(c => c.EntryID);
+        public Guid EntryID
+        {
+            get { return GetProperty(EntryIDProperty); }
+            set { SetProperty(EntryIDProperty, value); }
+        }
+
+        public static PropertyInfo<Guid> CategoryIDProperty = RegisterProperty<Guid>(c => c.CategoryID);
+        public Guid CategoryID
+        {
+            get { return GetProperty(CategoryIDProperty); }
+            set { SetProperty(CategoryIDProperty, value); }
+        }
+
+        public static PropertyInfo<Guid> RoleIDProperty = RegisterProperty<Guid>(c => c.RoleID);
+        public Guid RoleID
+        {
+            get { return GetProperty(RoleIDProperty); }
+            set { SetProperty(RoleIDProperty, value); }
+        }
+
+        public static PropertyInfo<string> DescriptionProperty = RegisterProperty<string>(c => c.Description);
+        public string Description
+        {
+            get { return GetProperty(DescriptionProperty); }
+            set { SetProperty(DescriptionProperty, value); }
+        }
+
+        public static PropertyInfo<string> UserNameProperty = RegisterProperty<string>(c => c.UserName);
+        public string UserName
+        {
+            get { return GetProperty(UserNameProperty); }
+            set { SetProperty(UserNameProperty, value); }
+        }
+
+        public static PropertyInfo<string> PasswordProperty = RegisterProperty<string>(c => c.Password);
+        public string Password
+        {
+            get { return GetProperty(PasswordProperty).Decrypt(); }
+            set { SetProperty(PasswordProperty, value.Encrypt()); }
+        }
+
+        public static PropertyInfo<Boolean> ActiveProperty = RegisterProperty<Boolean>(c => c.Active);
+        public Boolean Active
+        {
+            get { return GetProperty(ActiveProperty); }
+            set { SetProperty(ActiveProperty, value); }
+        }
+
+        public static PropertyInfo<DateTime> ModifiedDateProperty = RegisterProperty<DateTime>(c => c.ModifiedDate);
+        public DateTime ModifiedDate
+        {
+            get { return GetProperty(ModifiedDateProperty); }
+            set { SetProperty(ModifiedDateProperty, value); }
+        }
+
+        #endregion
+
+        #region [ Business Rules ]
+
+        protected override void AddBusinessRules()
+        {
+            base.AddBusinessRules();
+
+            BusinessRules.AddRule(new Csla.Rules.CommonRules.Required(PasswordProperty));
+            BusinessRules.AddRule(new Csla.Rules.CommonRules.Required(DescriptionProperty));
+            BusinessRules.AddRule(new Csla.Rules.CommonRules.Required(CategoryIDProperty));
+        }
+
+        #endregion
+
+        #region [ Factory Methods ]
+
+        public static Login GetByID(Guid id)
+        {
+            return DataPortal.Fetch<Login>(id);
+        }
+
+        #endregion
+
+        #region [ Events ]
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+
+            LoadProperty(ModifiedDateProperty, DateTime.UtcNow);
+        }
+
+        protected override void OnSaveProperties(Data.Login entity)
+        {
+            entity.CategoryID = ReadProperty(Login.CategoryIDProperty);
+            entity.EntryID = ReadProperty(Login.EntryIDProperty);
+            entity.Description = ReadProperty(Login.DescriptionProperty);
+            entity.RoleID = ReadProperty(Login.RoleIDProperty);
+            entity.UserName = ReadProperty(Login.UserNameProperty);
+            entity.Password = ReadProperty(Login.PasswordProperty);
+            entity.Active = ReadProperty(Login.ActiveProperty);
+            entity.ModifiedDate = ReadProperty(Login.ModifiedDateProperty);
+        }
+
+        protected override void OnLoadProperties(Data.Login entity)
+        {
+            base.OnLoadProperties(entity);
+
+            LoadProperty(Login.CategoryIDProperty, entity.CategoryID);
+            LoadProperty(Login.EntryIDProperty, entity.EntryID);
+            LoadProperty(Login.DescriptionProperty, entity.Description);
+            LoadProperty(Login.RoleIDProperty, entity.RoleID);
+            LoadProperty(Login.UserNameProperty, entity.UserName);
+            LoadProperty(Login.PasswordProperty, entity.Password);
+            LoadProperty(Login.ActiveProperty, entity.Active);
+            LoadProperty(Login.ModifiedDateProperty, entity.ModifiedDate);
+        }
+
+        #endregion
+
+        #region [ Data Access ]
+
+        protected void DataPortal_Fetch(Guid id)
+        {
+            using (Data.SecurePasswordEntities entities = new Data.SecurePasswordEntities())
+            {
+                var entity =
+                    (from l in entities.Logins
+                     where l.ID == id && l.Active == true
+                     select l).First();
+
+                LoadProperties(entity);
+            }
+        }
+
+        #endregion
+    }
+}

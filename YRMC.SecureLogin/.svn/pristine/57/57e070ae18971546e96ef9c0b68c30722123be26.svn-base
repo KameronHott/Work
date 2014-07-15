@@ -1,0 +1,239 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Csla;
+
+namespace YRMC.SecureLogin.Business.Lists
+{
+    [Serializable]
+    public class User : Common.ReadOnlyBase<User, Data.SecurePasswordEntities, Data.User>
+    {
+        #region [ Constructors ]
+
+        private User()
+            : base()
+        {
+        }
+
+        internal User(Data.User entity)
+            : base(entity)
+        {
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        public static PropertyInfo<string> SIDProperty = RegisterProperty<string>(c => c.SID);
+        public string SID
+        {
+            get { return GetProperty(SIDProperty); }
+        }
+
+        public static PropertyInfo<bool> ActiveProperty = RegisterProperty<bool>(c => c.Active);
+        public bool Active
+        {
+            get { return GetProperty(ActiveProperty); }
+        }
+
+        public static PropertyInfo<string> UserNameProperty = RegisterProperty<string>(c => c.UserName);
+        public string UserName
+        {
+            get
+            {
+                if (!FieldManager.FieldExists(UserNameProperty))
+                {
+                    // Try to convert the SID to NT Account Username, might fail if the account was deleted.
+                    string userName;
+
+                    try
+                    {
+                        userName = new System.Security.Principal.SecurityIdentifier(ReadProperty(SIDProperty))
+                            .Translate(typeof(System.Security.Principal.NTAccount)).ToString();
+                    }
+                    catch
+                    {
+                        userName = ReadProperty(SIDProperty);
+                    }
+
+                    LoadProperty(UserNameProperty, userName);
+                }
+
+                return GetProperty(UserNameProperty);
+            }
+        }
+
+        public static PropertyInfo<Roles> RolesProperty = RegisterProperty<Roles>(c => c.Roles);
+        public Roles Roles
+        {
+            get
+            {
+                if (!FieldManager.FieldExists(RolesProperty))
+                    LoadProperty(RolesProperty, Roles.GetByUserID(ID));
+
+                return GetProperty(RolesProperty);
+            }
+        }
+
+        public static PropertyInfo<bool> IsAdminProperty = RegisterProperty<bool>(c => c.IsAdmin);
+        public bool IsAdmin
+        {
+            get
+            {
+                if (!FieldManager.FieldExists(IsAdminProperty))
+                    LoadProperty(IsAdminProperty, DataPortal.Execute<IsAdminCommand>(
+                        new IsAdminCommand(GetProperty(IDProperty))).IsAdmin);
+                    
+                return GetProperty(IsAdminProperty);
+            }
+        }
+
+        #endregion
+
+        #region [ Factory Methods ]
+
+        public static User GetByID(Guid id)
+        {
+            return DataPortal.Fetch<User>(id);
+        }
+
+        public static User GetBySID()
+        {
+            return GetBySID(((Business.Security.SecurityIdentity)(Csla.ApplicationContext.User.Identity)).SID);
+        }
+
+        public static User GetBySID(string sid)
+        {
+            return DataPortal.Fetch<User>(sid);
+        }
+
+        public static bool ExistsBySID(string sid)
+        {
+            return DataPortal.Execute<ExistsBySIDCommand>(
+                new ExistsBySIDCommand(sid)).Exists;
+        }
+
+        #endregion
+
+        #region [ Events ]
+
+        protected override void OnLoadProperties(Data.User entity)
+        {
+            base.OnLoadProperties(entity);
+
+            LoadProperty(SIDProperty, entity.SID);
+            LoadProperty(ActiveProperty, entity.Active);
+        }
+
+        #endregion
+
+        #region [ Data Access ]
+
+        protected void DataPortal_Fetch(Guid id)
+        {
+            using (Data.SecurePasswordEntities entities = new Data.SecurePasswordEntities())
+            {
+                var entity =
+                    (from user in entities.Users
+                     where user.ID == id
+                     select user).First();
+
+                LoadProperties(entity);
+            }
+        }
+
+        protected void DataPortal_Fetch(string sid)
+        {
+            using (Data.SecurePasswordEntities entities = new Data.SecurePasswordEntities())
+            {
+                try
+                {
+                    var entity =
+                        (from user in entities.Users
+                         where user.SID == sid
+                         && user.Active == true
+                         select user).First();
+
+                    LoadProperties(entity);
+                }
+                catch { }
+            }
+        }
+
+        [Serializable]
+        private class IsAdminCommand : Csla.CommandBase<IsAdminCommand>
+        {
+            #region [ Constructors ]
+
+            public IsAdminCommand(Guid userID)
+            {
+                UserID = userID;
+            }
+
+            #endregion
+
+            #region [ Properties ]
+
+            public Guid UserID { get; set; }
+            public bool IsAdmin { get; set; }
+
+            #endregion
+
+            #region [ Data Access ]
+
+            protected override void DataPortal_Execute()
+            {
+                using (Data.SecurePasswordEntities entities = new Data.SecurePasswordEntities())
+                {
+                    IsAdmin = 
+                        (from ur in entities.UserRoles
+                         join r in entities.Roles
+                         on ur.ID equals r.ID
+                         where ur.PID == UserID &&
+                               r.Name == "administrators"
+                         select ur).Count() > 0;
+                }
+            }
+
+            #endregion
+        }
+
+        [Serializable]
+        private class ExistsBySIDCommand : Csla.CommandBase<ExistsBySIDCommand>
+        {
+            #region [ Constructors ]
+
+            public ExistsBySIDCommand(string sid)
+            {
+                SID = sid;
+            }
+
+            #endregion
+
+            #region [ Properties ]
+
+            public string SID { get; set; }
+            public bool Exists { get; set; }
+
+            #endregion
+
+            #region [ Data Access ]
+
+            protected override void DataPortal_Execute()
+            {
+                using (Data.SecurePasswordEntities entities = new Data.SecurePasswordEntities())
+                {
+                    Exists =
+                        (from user in entities.Users
+                         where user.SID == SID
+                         select user).Count() > 0;
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+    }
+}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Analysis>
+    <AnalysisEngineVersion>1.0.3455.36250</AnalysisEngineVersion>
+    <StartTimeStamp>Thursday, January 05, 2012 12:57:42 PM</StartTimeStamp>
+    <StopTimeStamp>Thursday, January 05, 2012 12:57:50 PM</StopTimeStamp>
+    <ElapsedTime>00:00:07.9568450</ElapsedTime>
+    <User>YRMC_MAIN\khott3</User>
+    <DataFlowSuperGraph>
+      <Nodes>14086</Nodes>
+      <Edges>19417</Edges>
+    </DataFlowSuperGraph>
+    <Targets>
+      <Target>C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data\bin\Debug\YRMC.SecureLogin.Data.dll</Target>
+      <Target>C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Business\YRMC.SecureLogin.Business\bin\Debug\YRMC.SecureLogin.Business.dll</Target>
+      <Target>C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Web\YRMC.SecureLogin.Web\bin\YRMC.SecureLogin.Web.dll</Target>
+    </Targets>
+  </Analysis>
+  <Rules>
+    <Rule>
+      <Name>Process Command Execution</Name>
+      <Identifier>ACESEC02</Identifier>
+      <TotalResults>0</TotalResults>
+      <Results />
+    </Rule>
+    <Rule>
+      <Name>File Canonicalization</Name>
+      <Identifier>ACESEC03</Identifier>
+      <TotalResults>0</TotalResults>
+      <Results />
+    </Rule>
+    <Rule>
+      <Name>Exception Information</Name>
+      <Identifier>ACESEC04</Identifier>
+      <TotalResults>0</TotalResults>
+      <Results />
+    </Rule>
+    <Rule>
+      <Name>LDAP Injection</Name>
+      <Identifier>ACESEC08</Identifier>
+      <TotalResults>0</TotalResults>
+      <Results />
+    </Rule>
+    <Rule>
+      <Name>XPath Injection</Name>
+      <Identifier>ACESEC07</Identifier>
+      <TotalResults>0</TotalResults>
+      <Results />
+    </Rule>
+    <Rule>
+      <Name>SQL Injection</Name>
+      <Identifier>ACESEC01</Identifier>
+      <TotalResults>0</TotalResults>
+      <Results />
+    </Rule>
+    <Rule>
+      <Name>Redirection to User Controlled Site</Name>
+      <Identifier>ACESEC06</Identifier>
+      <TotalResults>0</TotalResults>
+      <Results />
+    </Rule>
+    <Rule>
+      <Name>Cross-Site Scripting</Name>
+      <Identifier>ACESEC05</Identifier>
+      <TotalResults>0</TotalResults>
+      <Results />
+    </Rule>
+  </Rules>
+</Report>

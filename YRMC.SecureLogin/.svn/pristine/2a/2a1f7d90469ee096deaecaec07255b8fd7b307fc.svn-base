@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Csla;
+
+namespace YRMC.SecureLogin.Business.Lists
+{
+    [Serializable]
+    public class Users : Csla.ReadOnlyListBase<Users, User>
+    {
+        #region [ Factory Methods ]
+
+        public static Users GetAll()
+        {
+            return DataPortal.Fetch<Users>();
+        }
+
+        #endregion
+
+        #region [ Data Access ]
+        protected virtual void DataPortal_Fetch()
+        {
+            Data.User[] results = null;
+
+            using (Data.SecurePasswordEntities entities = new Data.SecurePasswordEntities())
+            {
+                results =
+                    (from user in entities.Users
+                     select user).ToArray();
+            }
+
+            RaiseListChangedEvents = false;
+
+            foreach (var entity in results)
+                Add(new User(entity));
+
+            RaiseListChangedEvents = true;
+        }
+
+        #endregion
+    }
+}

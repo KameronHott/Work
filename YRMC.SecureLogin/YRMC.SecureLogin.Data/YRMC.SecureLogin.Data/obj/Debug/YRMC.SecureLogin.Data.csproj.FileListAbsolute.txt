@@ -1,0 +1,6 @@
+C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data\bin\Debug\YRMC.SecureLogin.Data.dll.config
+C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data\bin\Debug\YRMC.SecureLogin.Data.dll
+C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data\bin\Debug\YRMC.SecureLogin.Data.pdb
+C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data\obj\Debug\ResolveAssemblyReference.cache
+C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data\obj\Debug\YRMC.SecureLogin.Data.dll
+C:\Projects\YRMC.SecureLogin\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data\obj\Debug\YRMC.SecureLogin.Data.pdb

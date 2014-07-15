@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Csla;
+
+namespace YRMC.SecureLogin.Business.Lists
+{
+    [Serializable]
+    public class Roles : Csla.ReadOnlyListBase<Roles, Role>
+    {
+        #region [ Authorization Rules ]
+
+        private static void AddObjectAuthorizationRules()
+        {
+            string[] roles = new string[] { "Administrators" };
+
+            Csla.Rules.BusinessRules.AddRule(typeof(Roles), new Csla.Rules.CommonRules.IsInRole(Csla.Rules.AuthorizationActions.GetObject, roles));
+        }
+
+        #endregion
+
+        #region [ Factory Methods ]
+
+        public static Roles GetByUserID(Guid UserID)
+        {
+            return DataPortal.Fetch<Roles>(UserID);
+        }
+
+        #endregion
+
+        #region [ Data Access ]
+        protected virtual void DataPortal_Fetch(Guid UserID)
+        {
+            Data.Role[] results = null;
+
+            using (Data.SecurePasswordEntities entities = new Data.SecurePasswordEntities())
+            {
+                bool isAdmin =
+                    (from ur in entities.UserRoles
+                     join r in entities.Roles
+                     on ur.ID equals r.ID
+                     where ur.PID == UserID &&
+                           r.Name == "administrators"
+                     select ur).Count() > 0;
+
+                if (isAdmin)
+                {
+                    results =
+                        (from r in entities.Roles
+                         orderby r.Name
+                         select r).ToArray();
+                }
+                else
+                {
+                    results =
+                        (from r in entities.Roles
+                         join ur in entities.UserRoles
+                         on r.ID equals ur.ID
+                         where ur.PID == UserID
+                         orderby r.Name
+                         select r).Distinct().ToArray();
+                }
+            }
+
+            RaiseListChangedEvents = false;
+
+            foreach (var entity in results)
+                Add(new Role(entity));
+
+            RaiseListChangedEvents = true;
+        }
+                
+        #endregion
+    }
+}

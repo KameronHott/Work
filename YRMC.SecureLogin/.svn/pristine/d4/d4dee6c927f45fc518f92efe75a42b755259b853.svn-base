@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{33106FD9-AAD8-4965-B13A-C7DC3F2A354D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>YRMC.SecureLogin.Business</RootNamespace>
+    <AssemblyName>YRMC.SecureLogin.Business</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Code.Utilities.Extensions">
+      <HintPath>..\..\..\Code.Utilities\Code.Utilities.Extensions\Code.Utilities.Extensions\bin\Debug\Code.Utilities.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Csla">
+      <HintPath>..\..\YRMC.SecureLogin.Web\packages\CSLA-Core.4.2.2.0\lib\NET4.0\Csla.dll</HintPath>
+    </Reference>
+    <Reference Include="Csla.XmlSerializers">
+      <HintPath>..\..\YRMC.SecureLogin.Web\packages\CSLA-Core.4.2.2.0\lib\NET4.0\Csla.XmlSerializers.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\..\YRMC.SecureLogin.Web\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\BusinessBase.cs" />
+    <Compile Include="Common\BusinessLinkBase.cs" />
+    <Compile Include="Common\ReadOnlyBase.cs" />
+    <Compile Include="Edits\Category.cs" />
+    <Compile Include="Edits\Login.cs" />
+    <Compile Include="Edits\UserRole.cs" />
+    <Compile Include="Lists\Categories.cs" />
+    <Compile Include="Lists\Category.cs" />
+    <Compile Include="Lists\Log.cs" />
+    <Compile Include="Lists\Login.cs" />
+    <Compile Include="Lists\Logins.cs" />
+    <Compile Include="Lists\Logs.cs" />
+    <Compile Include="Lists\Role.cs" />
+    <Compile Include="Lists\Roles.cs" />
+    <Compile Include="Lists\User.cs" />
+    <Compile Include="Lists\UserRole.cs" />
+    <Compile Include="Lists\UserRoles.cs" />
+    <Compile Include="Lists\Users.cs" />
+    <Compile Include="Edits\Log.cs" />
+    <Compile Include="Edits\User.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Searches\Log.cs" />
+    <Compile Include="Searches\Login.cs" />
+    <Compile Include="Searches\Logins.cs" />
+    <Compile Include="Searches\Logs.cs" />
+    <Compile Include="Security\SecurityIdentity.cs" />
+    <Compile Include="Security\SecurityPrincipal.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data\YRMC.SecureLogin.Data.csproj">
+      <Project>{A3AD63A2-A5EF-4ECF-BCA3-DBFE5CDE6560}</Project>
+      <Name>YRMC.SecureLogin.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

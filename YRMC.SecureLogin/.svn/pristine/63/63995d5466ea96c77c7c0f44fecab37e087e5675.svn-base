@@ -1,0 +1,93 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Csla;
+
+namespace YRMC.SecureLogin.Business.Lists
+{
+    [Serializable]
+    public class UserRole : Common.ReadOnlyBase<UserRole, Data.SecurePasswordEntities, Data.UserRole>
+    {
+        #region [ Constructors ]
+
+        private UserRole()
+            : base()
+        {
+        }
+
+        internal UserRole(Data.UserRole entity)
+            : base(entity)
+        {
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        public static PropertyInfo<Guid> RoleIDProperty = RegisterProperty<Guid>(c => c.RoleID);
+        public Guid RoleID
+        {
+            get { return GetProperty(RoleIDProperty); }
+        }
+
+        #endregion
+
+        #region [ Business Rules ]
+
+        protected override void AddBusinessRules()
+        {
+            base.AddBusinessRules();
+        }
+
+        #endregion
+
+        #region [ Authorization Rules ]
+
+        private static void AddObjectAuthorizationRules()
+        {
+            string[] roles = new string[] { "Administrators" };
+
+            Csla.Rules.BusinessRules.AddRule(typeof(UserRole), new Csla.Rules.CommonRules.IsInRole(Csla.Rules.AuthorizationActions.GetObject, roles));
+        }
+
+        #endregion
+
+        #region [ Factory Methods ]
+
+        public static UserRole GetByPID(Guid pid)
+        {
+            return DataPortal.Fetch<UserRole>(pid);
+        }
+
+        #endregion
+
+        #region [ Events ]
+
+        protected override void OnLoadProperties(Data.UserRole entity)
+        {
+            base.OnLoadProperties(entity);
+
+            LoadProperty(RoleIDProperty, entity.ID);
+        }
+
+        #endregion
+
+        #region [ Data Access ]
+
+        protected void DataPortal_Fetch(Guid pid)
+        {
+            using (Data.SecurePasswordEntities entities = new Data.SecurePasswordEntities())
+            {
+                var entity =
+                    (from i in entities.UserRoles
+                     where i.PID == pid
+                     select i).First();
+
+                LoadProperties(entity);
+            }
+        }
+
+        #endregion
+    }
+}
