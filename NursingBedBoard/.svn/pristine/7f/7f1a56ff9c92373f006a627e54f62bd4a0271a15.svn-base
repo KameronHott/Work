@@ -1,0 +1,272 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="2.0" xmlns:edmx="http://schemas.microsoft.com/ado/2008/10/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="NursingBedBoardModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+        <EntityContainer Name="NursingBedBoardModelStoreContainer">
+          <EntitySet Name="Boards" EntityType="NursingBedBoardModel.Store.Boards" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Comments" EntityType="NursingBedBoardModel.Store.Comments" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Locations" EntityType="NursingBedBoardModel.Store.Locations" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Logs" EntityType="NursingBedBoardModel.Store.Logs" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="Notations" EntityType="NursingBedBoardModel.Store.Notations" store:Type="Tables" Schema="dbo" />
+        </EntityContainer>
+        <EntityType Name="Boards">
+          <Key>
+            <PropertyRef Name="BoardId" />
+          </Key>
+          <Property Name="Location" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="Department" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="Unit" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="HospitalNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="AccountNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="Name" Type="nvarchar" MaxLength="255" />
+          <Property Name="Gender" Type="nvarchar" MaxLength="50" />
+          <Property Name="Age" Type="nvarchar" MaxLength="50" />
+          <Property Name="DischargeStatus" Type="nvarchar" MaxLength="50" />
+          <Property Name="Description" Type="nvarchar" MaxLength="2000" />
+          <Property Name="ATP" Type="nvarchar" MaxLength="50" />
+          <Property Name="DischargeStatusComment" Type="nvarchar" MaxLength="250" />
+          <Property Name="IsClean" Type="bit" Nullable="false" />
+          <Property Name="BoardId" Type="numeric" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="DischargeStatusDateTime" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Comments">
+          <Key>
+            <PropertyRef Name="CommentsID" />
+          </Key>
+          <Property Name="CommentsID" Type="numeric" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="HospitalNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="AccountNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="Unit" Type="nvarchar" MaxLength="50" />
+          <Property Name="CommentDateTime" Type="datetime" Nullable="false" />
+          <Property Name="CommentText" Type="text" />
+          <Property Name="EnteredBy" Type="nvarchar" MaxLength="150" />
+          <Property Name="EnteredByIp" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Locations">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="DisplayName" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="Order" Type="int" Nullable="false" />
+          <Property Name="Active" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Logs">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="numeric" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="HospitalNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="Unit" Type="nvarchar" MaxLength="50" />
+          <Property Name="AccountNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="LogCode" Type="nvarchar" MaxLength="20" />
+          <Property Name="EnteredDateTime" Type="datetime" />
+          <Property Name="ChangeMade" Type="nvarchar" MaxLength="50" />
+          <Property Name="CommentsMade" Type="text" />
+          <Property Name="WhoMade" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Notations">
+          <Key>
+            <PropertyRef Name="NotationID" />
+          </Key>
+          <Property Name="NotationID" Type="numeric" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Unit" Type="nvarchar" Nullable="false" MaxLength="50" />
+          <Property Name="HospitalNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="AccountNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="PatientName" Type="nvarchar" MaxLength="255" />
+          <Property Name="AlertColor" Type="nvarchar" MaxLength="20" />
+          <Property Name="RoomType" Type="nvarchar" MaxLength="20" />
+          <Property Name="EnteredDateTime" Type="datetime" Nullable="false" />
+          <Property Name="CommentText" Type="text" />
+        </EntityType>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="NursingBedBoardModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+        <EntityContainer Name="NursingBedBoardEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Boards" EntityType="NursingBedBoardModel.Board" />
+          <EntitySet Name="Locations" EntityType="NursingBedBoardModel.Location" />
+          <EntitySet Name="Notations" EntityType="NursingBedBoardModel.Notation" />
+          <EntitySet Name="Comments" EntityType="NursingBedBoardModel.Comment" />
+          <EntitySet Name="Logs" EntityType="NursingBedBoardModel.Log" />
+        </EntityContainer>
+        <EntityType Name="Board">
+          <Key>
+            <PropertyRef Name="BoardId" />
+          </Key>
+          <Property Name="Location" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="Department" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Type="String" Name="Unit" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="Name" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Gender" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="Age" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="DischargeStatus" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Type="String" Name="Description" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="DischargeStatusComment" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="ATP" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="HospitalNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="AccountNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Boolean" Name="IsClean" Nullable="false" />
+          <Property Type="Decimal" Name="BoardId" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="DischargeStatusDateTime" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Location">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="DisplayName" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="Int32" Name="Order" Nullable="false" />
+          <Property Type="Boolean" Name="Active" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Notation">
+          <Key>
+            <PropertyRef Name="NotationID" />
+          </Key>
+          <Property Type="String" Name="Unit" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="PatientName" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="AlertColor" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Type="DateTime" Name="EnteredDateTime" Nullable="false" />
+          <Property Type="Decimal" Name="NotationID" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="HospitalNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="AccountNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="CommentText" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="RoomType" MaxLength="20" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Comment">
+          <Key>
+            <PropertyRef Name="CommentsID" />
+          </Key>
+          <Property Type="Decimal" Name="CommentsID" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="HospitalNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="AccountNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="DateTime" Name="CommentDateTime" Nullable="false" />
+          <Property Type="String" Name="EnteredBy" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="Unit" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="CommentText" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="EnteredByIp" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Log">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Type="Decimal" Name="LogID" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="HospitalNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="Unit" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="AccountNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="LogCode" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Type="DateTime" Name="EnteredDateTime" />
+          <Property Type="String" Name="ChangeMade" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="CommentsMade" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="WhoMade" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="NursingBedBoardModelStoreContainer" CdmEntityContainer="NursingBedBoardEntities">
+          <EntitySetMapping Name="Boards"><EntityTypeMapping TypeName="NursingBedBoardModel.Board"><MappingFragment StoreEntitySet="Boards">
+                <ScalarProperty Name="DischargeStatusDateTime" ColumnName="DischargeStatusDateTime" />
+                <ScalarProperty Name="BoardId" ColumnName="BoardId" />
+                <ScalarProperty Name="IsClean" ColumnName="IsClean" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="HospitalNumber" ColumnName="HospitalNumber" />
+                <ScalarProperty Name="ATP" ColumnName="ATP" />
+                <ScalarProperty Name="DischargeStatusComment" ColumnName="DischargeStatusComment" />
+                <ScalarProperty Name="Location" ColumnName="Location" />
+            <ScalarProperty Name="Department" ColumnName="Department" />
+            <ScalarProperty Name="Unit" ColumnName="Unit" />
+            <ScalarProperty Name="Name" ColumnName="Name" />
+            <ScalarProperty Name="Gender" ColumnName="Gender" />
+            <ScalarProperty Name="Age" ColumnName="Age" />
+            <ScalarProperty Name="DischargeStatus" ColumnName="DischargeStatus" />
+            <ScalarProperty Name="Description" ColumnName="Description" />
+          </MappingFragment></EntityTypeMapping></EntitySetMapping>
+          <EntitySetMapping Name="Locations">
+            <EntityTypeMapping TypeName="NursingBedBoardModel.Location">
+              <MappingFragment StoreEntitySet="Locations">
+                <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Order" ColumnName="Order" />
+                <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Notations">
+            <EntityTypeMapping TypeName="NursingBedBoardModel.Notation">
+              <MappingFragment StoreEntitySet="Notations">
+                <ScalarProperty Name="RoomType" ColumnName="RoomType" />
+                <ScalarProperty Name="CommentText" ColumnName="CommentText" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="HospitalNumber" ColumnName="HospitalNumber" />
+                <ScalarProperty Name="NotationID" ColumnName="NotationID" />
+                <ScalarProperty Name="EnteredDateTime" ColumnName="EnteredDateTime" />
+                <ScalarProperty Name="AlertColor" ColumnName="AlertColor" />
+                <ScalarProperty Name="PatientName" ColumnName="PatientName" />
+                <ScalarProperty Name="Unit" ColumnName="Unit" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Comments">
+            <EntityTypeMapping TypeName="NursingBedBoardModel.Comment">
+              <MappingFragment StoreEntitySet="Comments">
+                <ScalarProperty Name="EnteredByIp" ColumnName="EnteredByIp" />
+                <ScalarProperty Name="CommentText" ColumnName="CommentText" />
+                <ScalarProperty Name="Unit" ColumnName="Unit" />
+                <ScalarProperty Name="EnteredBy" ColumnName="EnteredBy" />
+                <ScalarProperty Name="CommentDateTime" ColumnName="CommentDateTime" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="HospitalNumber" ColumnName="HospitalNumber" />
+                <ScalarProperty Name="CommentsID" ColumnName="CommentsID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Logs">
+            <EntityTypeMapping TypeName="NursingBedBoardModel.Log">
+              <MappingFragment StoreEntitySet="Logs">
+                <ScalarProperty Name="WhoMade" ColumnName="WhoMade" />
+                <ScalarProperty Name="CommentsMade" ColumnName="CommentsMade" />
+                <ScalarProperty Name="ChangeMade" ColumnName="ChangeMade" />
+                <ScalarProperty Name="EnteredDateTime" ColumnName="EnteredDateTime" />
+                <ScalarProperty Name="LogCode" ColumnName="LogCode" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="Unit" ColumnName="Unit" />
+                <ScalarProperty Name="HospitalNumber" ColumnName="HospitalNumber" />
+                <ScalarProperty Name="LogID" ColumnName="LogID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2008/10/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams>
+      <Diagram Name="Database" ShowGrid="false">
+        <EntityTypeShape EntityType="NursingBedBoardModel.Board" Width="1.5" PointX="6.375" PointY="0.75" Height="3.5186979166666656" IsExpanded="true" />
+        <EntityTypeShape EntityType="NursingBedBoardModel.Location" Width="1.5" PointX="3.375" PointY="0.75" Height="1.4279589843749996" />
+        <EntityTypeShape EntityType="NursingBedBoardModel.Notation" Width="1.5" PointX="0.75" PointY="0.75" Height="2.7494921875" />
+        <EntityTypeShape EntityType="NursingBedBoardModel.Comment" Width="1.5" PointX="1" PointY="3.75" Height="2.3648893229166656" />
+        <EntityTypeShape EntityType="NursingBedBoardModel.Log" Width="1.5" PointX="3.375" PointY="3.75" Height="2.5571907552083335" />
+      </Diagram>
+    </Diagrams>
+  </Designer>
+</edmx:Edmx>

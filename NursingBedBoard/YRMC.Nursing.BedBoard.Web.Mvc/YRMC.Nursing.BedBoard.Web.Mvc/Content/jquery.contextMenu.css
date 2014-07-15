@@ -1,0 +1,75 @@
+/* Generic context menu styles */
+.contextMenu {
+	position: absolute;
+	width: 160px;
+	z-index: 99999;
+	border: solid 1px #CCC;
+	background: #EEE;
+	padding: 0px;
+	margin: 0px;
+	display: none;
+}
+
+.contextMenu LI {
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+.contextMenu A {
+	color: #333;
+	text-decoration: none;
+	display: block;
+	line-height: 20px;
+	height: 20px;
+	background-position: 6px center;
+	background-repeat: no-repeat;
+	outline: none;
+	padding: 1px 5px;
+	padding-left: 28px;
+}
+
+.contextMenu LI.hover A {
+	color: #FFF;
+	background-color: #3399FF;
+}
+
+.contextMenu LI.disabled A {
+	color: #AAA;
+	cursor: default;
+}
+
+.contextMenu LI.hover.disabled A {
+	background-color: transparent;
+}
+
+.contextMenu LI.separator {
+	border-top: solid 1px #CCC;
+}
+
+/*
+	Adding Icons
+	
+	You can add icons to the context menu by adding
+	classes to the respective LI element(s)
+*/
+
+.contextMenu LI.edit A { background-image: url(edit.png); }
+.contextMenu LI.cut A { background-image: url(cut.png); }
+.contextMenu LI.copy A { background-image: url(page_white_copy.png); }
+.contextMenu LI.paste A { background-image: url(page_white_paste.png); }
+.contextMenu LI.delete A { background-image: url(delete.png); }
+.contextMenu LI.quit A { background-image: url(door.png); }
+.contextMenu LI.insert A { background-image: url(plus.png); }
+.contextMenu LI.comments A { background-image: url(information.png); }
+.contextMenu LI.noflag A { background-image: url(undo.png); }
+.contextMenu LI.yellow A { background-image: url(flag-yellow.png); }
+.contextMenu LI.isolation A { background-image: url(flag-purple.png); }
+.contextMenu LI.clearit A { background-image: url(eraser_pencil.png); }
+.contextMenu LI.red A { background-image: url(flag-red.png); }
+.contextMenu LI.allclean A { background-image: url(all-clean.png); }
+.contextMenu LI.needscleaned A { background-image: url(needs-cleaning.png); }
+.contextMenu LI.undoadmin A { background-image: url(undo.png); }
+.contextMenu LI.available A { background-image: url(available.png); }
+.contextMenu LI.unavailable A { background-image: url(unavailable.png); }
+

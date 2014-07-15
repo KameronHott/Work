@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="NursingBedBoardModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+  <EntityContainer Name="NursingBedBoardModelStoreContainer">
+    <EntitySet Name="Boards" EntityType="NursingBedBoardModel.Store.Boards" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Comments" EntityType="NursingBedBoardModel.Store.Comments" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Locations" EntityType="NursingBedBoardModel.Store.Locations" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Logs" EntityType="NursingBedBoardModel.Store.Logs" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Notations" EntityType="NursingBedBoardModel.Store.Notations" store:Type="Tables" Schema="dbo" />
+  </EntityContainer>
+  <EntityType Name="Boards">
+    <Key>
+      <PropertyRef Name="BoardId" />
+    </Key>
+    <Property Name="Location" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="Department" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="Unit" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="HospitalNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="AccountNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="Name" Type="nvarchar" MaxLength="255" />
+    <Property Name="Gender" Type="nvarchar" MaxLength="50" />
+    <Property Name="Age" Type="nvarchar" MaxLength="50" />
+    <Property Name="DischargeStatus" Type="nvarchar" MaxLength="50" />
+    <Property Name="Description" Type="nvarchar" MaxLength="2000" />
+    <Property Name="ATP" Type="nvarchar" MaxLength="50" />
+    <Property Name="DischargeStatusComment" Type="nvarchar" MaxLength="250" />
+    <Property Name="IsClean" Type="bit" Nullable="false" />
+    <Property Name="BoardId" Type="numeric" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="DischargeStatusDateTime" Type="nvarchar" MaxLength="50" />
+    <Property Name="DirtyNotification" Type="datetime" />
+  </EntityType>
+  <EntityType Name="Comments">
+    <Key>
+      <PropertyRef Name="CommentsID" />
+    </Key>
+    <Property Name="CommentsID" Type="numeric" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="HospitalNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="AccountNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="Unit" Type="nvarchar" MaxLength="50" />
+    <Property Name="CommentDateTime" Type="datetime" Nullable="false" />
+    <Property Name="CommentText" Type="text" />
+    <Property Name="EnteredBy" Type="nvarchar" MaxLength="150" />
+    <Property Name="EnteredByIp" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="Locations">
+    <Key>
+      <PropertyRef Name="Name" />
+    </Key>
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="DisplayName" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="Order" Type="int" Nullable="false" />
+    <Property Name="Active" Type="bit" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Logs">
+    <Key>
+      <PropertyRef Name="LogID" />
+    </Key>
+    <Property Name="LogID" Type="numeric" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="HospitalNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="Unit" Type="nvarchar" MaxLength="50" />
+    <Property Name="AccountNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="LogCode" Type="nvarchar" MaxLength="20" />
+    <Property Name="EnteredDateTime" Type="datetime" />
+    <Property Name="ChangeMade" Type="nvarchar" MaxLength="50" />
+    <Property Name="CommentsMade" Type="text" />
+    <Property Name="WhoMade" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="Notations">
+    <Key>
+      <PropertyRef Name="NotationID" />
+    </Key>
+    <Property Name="NotationID" Type="numeric" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="Unit" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="HospitalNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="AccountNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="PatientName" Type="nvarchar" MaxLength="255" />
+    <Property Name="AlertColor" Type="nvarchar" MaxLength="20" />
+    <Property Name="RoomType" Type="nvarchar" MaxLength="20" />
+    <Property Name="EnteredDateTime" Type="datetime" Nullable="false" />
+    <Property Name="CommentText" Type="text" />
+  </EntityType>
+</Schema>

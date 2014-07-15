@@ -1,0 +1,461 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Text.RegularExpressions;
+using System.DirectoryServices;
+
+namespace YRMC.Nursing.BedBoard.Web.Mvc.Controllers
+{
+    public class BoardsController : Controller
+    {
+        #region Location Class
+
+        private class Location
+        {
+            public Location(string name) { Name = name; }
+
+            public string Name { get; set; }
+            public List<Department> Departments = new List<Department>();
+        }
+
+        private class Department
+        {
+            public Department(string name) { Name = name; }
+
+            public string Name { get; set; }
+            public List<Unit> Units = new List<Unit>();
+        }
+
+        private class Unit
+        {
+            public Unit(string name, string flag, string roomtype, string flagcomment) { 
+                Name = name;
+                Flag = flag;
+                FlagComment = flagcomment;
+                RoomType = roomtype;
+            }
+
+            public string Name { get; set; }
+            public Patient Patient { get; set; }
+            public string Flag { get; set; }
+            public string FlagComment { get; set; }
+            public string RoomType { get; set; }
+        }
+
+        private class Patient
+        {
+            public Patient(string name, string gender, string age, string atp, string dischargeStatus, string dischargeStatusComment, string description, string accountnumber, string commenttext, Boolean isclean)
+            {
+                string descPrefix = "";
+
+                Name = name;
+                Gender = gender;
+                Age = age;
+                ATP = atp;
+                DischargeStatus = dischargeStatus;
+                AccountNumber = accountnumber;
+                CommentText = commenttext;
+                IsClean = isclean;
+
+
+                description = Regex.Replace(description, @",\b", @", ");
+                description = Regex.Replace(description, @"\\b", @" \ ");
+                description = Regex.Replace(description, @"/\b", @" / ");
+
+                if (!string.IsNullOrEmpty(atp))
+                    descPrefix = "ATP: " + atp + "<br />";
+
+                if (!string.IsNullOrEmpty(DischargeStatus) &&
+                    !string.IsNullOrEmpty(dischargeStatusComment))
+                    descPrefix += "DSTAT: " + dischargeStatusComment + "<br />";
+
+                Description =
+                    descPrefix +
+                    description;
+            }
+
+            public string Name { get; set; }
+            public string Gender { get; set; }
+            public string Age { get; set; }
+            public string ATP { get; set; }
+            public string DischargeStatus { get; set; }
+            public string Description { get; set; }
+            public string AccountNumber { get; set; }
+            public string CommentText { get; set; }
+            public Boolean IsClean { get; set; }
+           
+        }
+
+        #endregion
+
+        static List<Location> _locations = new List<Location>();
+        static DateTime _locationTimestamp;
+        static TimeSpan _locationTimespan = new TimeSpan(0, 0, 10); // Allows updates every 10 seconds.
+
+        //
+        // GET: /Boards/
+        [HttpGet()]
+        public ActionResult Index(string id /* Location -> Name */)
+        {
+            bool update = false;
+            Location location;
+
+            if (_locations.Where(o => o.Name == id).Count() == 0)
+            {
+                update = true;
+            }
+            else if (DateTime.Now.Subtract(_locationTimestamp) >= _locationTimespan)
+            {
+                update = true;
+            }
+
+            if (update)
+            {
+                location = new Location(id);
+
+                using (var entities = new NursingBedBoardEntities())
+                {
+                    if (String.IsNullOrEmpty(id))
+                        return null;
+
+                    List<Board> items = (
+                        from row in entities.Boards
+                        where row.Location == id
+                        orderby row.Location, row.Department, row.Unit
+                        select row).ToList();
+
+                    var departments = items.Where(o => o.Location == id).Select(o => o.Department).Distinct();
+
+                    foreach (string departmentName in departments)
+                    {
+                        Department department = new Department(departmentName);
+                        var units = items.Where(o => o.Location == id && o.Department == departmentName).Select(o => o.Unit).Distinct();
+
+                        foreach (string unitName in units)
+                        {
+
+                            Unit unit;
+                            string roomtype = "";
+
+                            var item = items.Where(o =>
+                                o.Location == id &&
+                                o.Department == departmentName &&
+                                o.Unit == unitName)
+                                .Select(o => o).FirstOrDefault();
+
+                            if (IsIsolation(item.HospitalNumber,item.Unit)){roomtype="isolation"; }
+                            if (IsUnavailable(item.HospitalNumber,item.Unit)){roomtype="unavailable"; }
+
+                            if (item.AccountNumber == null || item.AccountNumber == "")
+                            {
+                                unit = new Unit(unitName, FlagColor(item.HospitalNumber, "::" + unitName, unitName), roomtype,GetFlagComment(item.HospitalNumber, unitName, ""));
+                                unit.Patient = new Patient(item.Name, item.Gender, item.Age, item.ATP, item.DischargeStatus, item.DischargeStatusComment, item.Description, "", LastComment(item.HospitalNumber, "::" + unitName), item.IsClean);
+                            }
+                            else
+                            {
+                                if (FlagColor(item.HospitalNumber, item.AccountNumber, item.Unit).Length == 0)
+                                {
+                                    unit = new Unit(unitName, "", roomtype, GetFlagComment(item.HospitalNumber, unitName, ""));
+                                }
+                                else
+                                {
+                                    unit = new Unit(unitName, FlagColor(item.HospitalNumber, item.AccountNumber, item.Unit), roomtype,GetFlagComment(item.HospitalNumber, item.Unit, item.AccountNumber));
+                                }
+                                unit.Patient = new Patient(item.Name, item.Gender, item.Age, item.ATP, item.DischargeStatus, item.DischargeStatusComment, item.Description, item.AccountNumber.ToString(), LastComment(item.HospitalNumber, item.AccountNumber.ToString()), item.IsClean);
+                            }
+
+                            department.Units.Add(unit);
+                        }
+
+                        location.Departments.Add(department);
+                    }
+                }
+
+                // Replace/Add the latest data in our static list.
+                if (_locations.Where(o => o.Name == id).Count() != 0)
+                    _locations[_locations.IndexOf(_locations.Where(o => o.Name == id).First())] = location;
+                else
+                    _locations.Add(location);
+
+                _locationTimestamp = DateTime.Now;
+            }
+            else
+            {
+                location = _locations.Where(o => o.Name == id).First();
+            }
+           
+            return Json(location, JsonRequestBehavior.AllowGet);
+        }
+
+        private NursingBedBoardEntities theDb;
+
+        public string LastComment(string rhospitalnumber, string raccountnumber)
+        {
+            theDb = new NursingBedBoardEntities();
+            // this is for a comment on an empty room
+            if (raccountnumber.Substring(0, 2) == "::")
+            {
+                var entities = new NursingBedBoardEntities();
+                string thecomment = "";
+
+                IQueryable<Comment> items = (
+                        from row in entities.Comments
+                        where row.HospitalNumber == rhospitalnumber && row.Unit  == raccountnumber.Substring(2) && row.AccountNumber==""
+                        orderby row.CommentsID
+                        select row);
+
+                try
+                {
+                    foreach (var comment in items)
+                    {
+                        string dttime = comment.CommentDateTime.ToString("MM/dd/yy @ HH:mm");
+                        thecomment = "Cmt By: " + comment.EnteredBy.ToString() + " on " + dttime + " - " + comment.CommentText.ToString();
+                    }
+                    return thecomment.ToString();
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+                // this would leave a comment on a patient
+            else if (theDb.Comments.Where(p => p.HospitalNumber == rhospitalnumber && p.AccountNumber == raccountnumber).Count() != 0)
+            {
+                var entities = new NursingBedBoardEntities();
+                string thecomment = "";
+
+                IQueryable<Comment> items = (
+                        from row in entities.Comments
+                        where row.HospitalNumber == rhospitalnumber && row.AccountNumber == raccountnumber
+                        orderby row.CommentsID 
+                        select row);
+                
+                foreach (var comment in items)
+                {
+                    string dttime = comment.CommentDateTime.ToString("MM/dd/yy @ HH:mm");
+                    thecomment = "Cmt By: " + comment.EnteredBy.ToString() + " on " + dttime + " - " + comment.CommentText.ToString();
+                }
+
+                return thecomment.ToString();
+            }
+            else
+            { return ""; }
+        }
+
+        public string FlagColor(string rhospitalnumber, string raccountnumber, string unit)
+        {
+            theDb = new NursingBedBoardEntities();
+            // This is a flag for an empty room
+            if (raccountnumber.Substring(0, 2) == "::")
+            {
+                var entities = new NursingBedBoardEntities();
+                string thependingcolor = "";
+                string thecolor = "";
+                DateTime thedatetime = Convert.ToDateTime("1/2/1900");
+
+                IQueryable<Notation> items = (
+                        from row in entities.Notations
+                        where row.HospitalNumber == rhospitalnumber && row.Unit == raccountnumber.Substring(2) && row.AccountNumber == "" && (row.RoomType == null || row.RoomType == "")
+                        select row);
+                try
+                {
+                    foreach (var color in items)
+                    {
+                        if (color.AlertColor == "yellow")
+                        thependingcolor = "yellow";
+                        thedatetime = Convert.ToDateTime(color.EnteredDateTime);
+                    }
+                    thecolor = thependingcolor;
+                    if (IsPendingAdmission(rhospitalnumber, unit, "") >= thedatetime) { thecolor = "yellow"; }
+                    return thecolor.ToString();
+                }
+                catch
+                {
+                    return "";
+                }                
+            }
+                // This is a flag for a patient room
+            else if (theDb.Notations.Where(p => p.HospitalNumber == rhospitalnumber && p.Unit == unit).Count() != 0)
+            {
+                var entities = new NursingBedBoardEntities();
+                string thecolor = "";
+                DateTime thedatetime=Convert.ToDateTime("1/2/1900");
+
+                IQueryable<Notation> items = (
+                        from row in entities.Notations
+                        where row.HospitalNumber == rhospitalnumber && row.Unit == unit && (row.RoomType == null || row.RoomType == "")
+                        select row);
+
+                foreach (var color in items)
+                {
+                    thecolor = color.AlertColor;
+                    thedatetime = Convert.ToDateTime(color.EnteredDateTime);
+                }
+
+                if (IsPendingAdmission(rhospitalnumber, unit, raccountnumber) >= thedatetime) { thecolor = "yellow"; }
+                return thecolor.ToString();
+            }
+            else
+            { return ""; }
+
+        }
+
+        public string GetFlagComment(string hospitalnumber, string unit, string accountnumber)
+        {
+            var entities = new NursingBedBoardEntities();
+
+            IQueryable<Notation> items = (
+                    from row in entities.Notations
+                    where row.HospitalNumber == hospitalnumber && row.Unit == unit && (row.RoomType == null || row.RoomType == "")
+                    orderby row.EnteredDateTime descending
+                    select row);
+
+            foreach (var color in items)
+                {
+                    if (color.AlertColor == "yellow" && color.AccountNumber == accountnumber)
+                    {
+                        try
+                        {
+                            return color.CommentText.ToString();
+                        }
+                        catch { return ""; }
+                    }
+                    else if (color.AlertColor == "yellow" && accountnumber=="")
+                    {
+                        return color.CommentText.ToString();
+                    }
+                    else { return ""; }
+                }                
+
+                return "";
+        }
+
+        public Boolean IsIsolation(string hospitalnumber, string unit)
+        {
+            var entities = new NursingBedBoardEntities();
+
+            IQueryable<Notation> items = (
+                        from row in entities.Notations
+                        where row.HospitalNumber == hospitalnumber && row.Unit == unit && row.AccountNumber == "" && row.RoomType == "isolation"
+                        select row);
+
+            foreach (var color in items)
+            {
+                return true;
+            }
+            
+            return false; 
+            
+        }
+
+        public Boolean IsUnavailable(string hospitalnumber, string unit)
+        {
+            var entities = new NursingBedBoardEntities();
+
+            IQueryable<Notation> items = (
+                        from row in entities.Notations
+                        where row.HospitalNumber == hospitalnumber && row.Unit == unit && row.AccountNumber == "" && row.RoomType == "unavailable"
+                        select row);
+
+            foreach (var color in items)
+            {
+                return true;
+            }
+
+            return false;
+
+        }
+
+        public DateTime IsPendingAdmission(string hospitalnumber,string unit, string accountnumber)
+        {
+            var entities = new NursingBedBoardEntities();
+
+            IQueryable<Notation> items = (
+                        from row in entities.Notations
+                        where row.HospitalNumber == hospitalnumber && row.Unit == unit && (row.RoomType == null || row.RoomType == "")
+                        orderby row.EnteredDateTime descending
+                        select row);
+
+            foreach (var color in items)
+            {
+                if (color.AlertColor == "yellow" && color.AccountNumber == accountnumber)
+                {
+                    return Convert.ToDateTime(color.EnteredDateTime);
+                }
+                else if (color.AlertColor == "yellow" && accountnumber=="")
+                {
+                    return Convert.ToDateTime(color.EnteredDateTime);
+                }
+                else { return Convert.ToDateTime("1/1/1900"); }
+            }
+
+            return Convert.ToDateTime("1/1/1900");
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        public JsonResult RoomClean(string unit)
+        {
+            theDb = new NursingBedBoardEntities();
+            if (theDb.Boards.Where(a => a.Unit == unit).Count() != 0)
+            {
+                // Change IsClean flag to 1 (true)
+                var query2 = from p in theDb.Boards
+                             where p.Unit == unit 
+                             select p;
+
+                foreach (Board c in query2)
+                {
+                    c.IsClean = true;
+                }
+            }
+            theDb.SaveChanges();
+
+            //Return a success
+            return Json(new
+            {
+                Success = true,
+                //Message = "Data saved Successfully " + patientname + ' ' + unit + ' ' + comment + ' ' + color
+            });
+        }
+
+        [AcceptVerbs(HttpVerbs.Post)]
+        public JsonResult RoomDirty(string unit)
+        {
+            theDb = new NursingBedBoardEntities();
+            if (theDb.Boards.Where(a => a.Unit == unit).Count() != 0)
+            {
+                // Change IsClean flag to 1 (true)
+                var query2 = from p in theDb.Boards
+                             where p.Unit == unit
+                             select p;
+
+                foreach (Board c in query2)
+                {
+                    c.IsClean = false;
+                }
+            }
+            theDb.SaveChanges();
+            //Return a success
+            return Json(new
+            {
+                Success = true,
+                //Message = "Data saved Successfully " + patientname + ' ' + unit + ' ' + comment + ' ' + color
+            });
+        }
+
+        public string GetFullName(string loginid)
+        {
+            try
+            {
+                DirectoryEntry dEntry = new DirectoryEntry("LDAP://dc=YRMC,dc=org");
+                DirectorySearcher dSearcher = new DirectorySearcher(dEntry);
+                dSearcher.Filter = "(&(objectCategory=person)(sAMAccountName=" + loginid + "))";
+                DirectoryEntry result = dSearcher.FindOne().GetDirectoryEntry();
+                return result.Properties["displayName"].Value.ToString();
+            }
+            catch { return loginid; }
+        }
+    }
+}

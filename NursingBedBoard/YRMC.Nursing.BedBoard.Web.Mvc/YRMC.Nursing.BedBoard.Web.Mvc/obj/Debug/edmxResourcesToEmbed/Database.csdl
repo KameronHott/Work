@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="NursingBedBoardModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+  <EntityContainer Name="NursingBedBoardEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Boards" EntityType="NursingBedBoardModel.Board" />
+    <EntitySet Name="Locations" EntityType="NursingBedBoardModel.Location" />
+    <EntitySet Name="Notations" EntityType="NursingBedBoardModel.Notation" />
+    <EntitySet Name="Comments" EntityType="NursingBedBoardModel.Comment" />
+    <EntitySet Name="Logs" EntityType="NursingBedBoardModel.Log" />
+  </EntityContainer>
+  <EntityType Name="Board">
+    <Key>
+      <PropertyRef Name="BoardId" />
+    </Key>
+    <Property Name="Location" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Department" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Type="String" Name="Unit" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="Name" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="Gender" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Age" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="DischargeStatus" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Type="String" Name="Description" MaxLength="2000" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="DischargeStatusComment" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="ATP" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="HospitalNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="AccountNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="Boolean" Name="IsClean" Nullable="false" />
+    <Property Type="Decimal" Name="BoardId" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="DischargeStatusDateTime" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="DirtyNotification" />
+  </EntityType>
+  <EntityType Name="Location">
+    <Key>
+      <PropertyRef Name="Name" />
+    </Key>
+    <Property Type="String" Name="Name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="DisplayName" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="Int32" Name="Order" Nullable="false" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Notation">
+    <Key>
+      <PropertyRef Name="NotationID" />
+    </Key>
+    <Property Type="String" Name="Unit" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="PatientName" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="AlertColor" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="EnteredDateTime" Nullable="false" />
+    <Property Type="Decimal" Name="NotationID" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="HospitalNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="AccountNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="CommentText" MaxLength="250" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="RoomType" MaxLength="20" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="Comment">
+    <Key>
+      <PropertyRef Name="CommentsID" />
+    </Key>
+    <Property Type="Decimal" Name="CommentsID" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="HospitalNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="AccountNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="CommentDateTime" Nullable="false" />
+    <Property Type="String" Name="EnteredBy" MaxLength="150" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="Unit" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="CommentText" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="EnteredByIp" MaxLength="50" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="Log">
+    <Key>
+      <PropertyRef Name="LogID" />
+    </Key>
+    <Property Type="Decimal" Name="LogID" Nullable="false" Precision="18" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="HospitalNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="Unit" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="AccountNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="LogCode" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="EnteredDateTime" />
+    <Property Type="String" Name="ChangeMade" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="CommentsMade" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="WhoMade" MaxLength="50" FixedLength="false" Unicode="true" />
+  </EntityType>
+</Schema>

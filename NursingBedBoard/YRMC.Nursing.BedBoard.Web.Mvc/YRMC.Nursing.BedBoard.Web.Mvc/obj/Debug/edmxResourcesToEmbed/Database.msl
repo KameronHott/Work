@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="NursingBedBoardModelStoreContainer" CdmEntityContainer="NursingBedBoardEntities">
+    <EntitySetMapping Name="Boards">
+      <EntityTypeMapping TypeName="NursingBedBoardModel.Board">
+        <MappingFragment StoreEntitySet="Boards">
+          <ScalarProperty Name="DirtyNotification" ColumnName="DirtyNotification" />
+          <ScalarProperty Name="DischargeStatusDateTime" ColumnName="DischargeStatusDateTime" />
+          <ScalarProperty Name="BoardId" ColumnName="BoardId" />
+          <ScalarProperty Name="IsClean" ColumnName="IsClean" />
+          <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+          <ScalarProperty Name="HospitalNumber" ColumnName="HospitalNumber" />
+          <ScalarProperty Name="ATP" ColumnName="ATP" />
+          <ScalarProperty Name="DischargeStatusComment" ColumnName="DischargeStatusComment" />
+          <ScalarProperty Name="Location" ColumnName="Location" />
+          <ScalarProperty Name="Department" ColumnName="Department" />
+          <ScalarProperty Name="Unit" ColumnName="Unit" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Gender" ColumnName="Gender" />
+          <ScalarProperty Name="Age" ColumnName="Age" />
+          <ScalarProperty Name="DischargeStatus" ColumnName="DischargeStatus" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Locations">
+      <EntityTypeMapping TypeName="NursingBedBoardModel.Location">
+        <MappingFragment StoreEntitySet="Locations">
+          <ScalarProperty Name="Active" ColumnName="Active" />
+          <ScalarProperty Name="Order" ColumnName="Order" />
+          <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Notations">
+      <EntityTypeMapping TypeName="NursingBedBoardModel.Notation">
+        <MappingFragment StoreEntitySet="Notations">
+          <ScalarProperty Name="RoomType" ColumnName="RoomType" />
+          <ScalarProperty Name="CommentText" ColumnName="CommentText" />
+          <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+          <ScalarProperty Name="HospitalNumber" ColumnName="HospitalNumber" />
+          <ScalarProperty Name="NotationID" ColumnName="NotationID" />
+          <ScalarProperty Name="EnteredDateTime" ColumnName="EnteredDateTime" />
+          <ScalarProperty Name="AlertColor" ColumnName="AlertColor" />
+          <ScalarProperty Name="PatientName" ColumnName="PatientName" />
+          <ScalarProperty Name="Unit" ColumnName="Unit" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Comments">
+      <EntityTypeMapping TypeName="NursingBedBoardModel.Comment">
+        <MappingFragment StoreEntitySet="Comments">
+          <ScalarProperty Name="EnteredByIp" ColumnName="EnteredByIp" />
+          <ScalarProperty Name="CommentText" ColumnName="CommentText" />
+          <ScalarProperty Name="Unit" ColumnName="Unit" />
+          <ScalarProperty Name="EnteredBy" ColumnName="EnteredBy" />
+          <ScalarProperty Name="CommentDateTime" ColumnName="CommentDateTime" />
+          <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+          <ScalarProperty Name="HospitalNumber" ColumnName="HospitalNumber" />
+          <ScalarProperty Name="CommentsID" ColumnName="CommentsID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Logs">
+      <EntityTypeMapping TypeName="NursingBedBoardModel.Log">
+        <MappingFragment StoreEntitySet="Logs">
+          <ScalarProperty Name="WhoMade" ColumnName="WhoMade" />
+          <ScalarProperty Name="CommentsMade" ColumnName="CommentsMade" />
+          <ScalarProperty Name="ChangeMade" ColumnName="ChangeMade" />
+          <ScalarProperty Name="EnteredDateTime" ColumnName="EnteredDateTime" />
+          <ScalarProperty Name="LogCode" ColumnName="LogCode" />
+          <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+          <ScalarProperty Name="Unit" ColumnName="Unit" />
+          <ScalarProperty Name="HospitalNumber" ColumnName="HospitalNumber" />
+          <ScalarProperty Name="LogID" ColumnName="LogID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

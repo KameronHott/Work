@@ -1,0 +1,800 @@
+﻿@{
+    ViewBag.Title = "Bed Board";
+    ViewBag.StyleSheets = new string[6];
+    ViewBag.StyleSheets[0] = Url.Content("~/Content/Site.css");
+    ViewBag.StyleSheets[1] = Url.Content("~/Content/jquery.alerts.css");
+    ViewBag.StyleSheets[2] = Url.Content("~/Content/StyleSheet.css");
+    ViewBag.StyleSheets[3] = Url.Content("~/Content/confirm.css");
+    ViewBag.StyleSheets[4] = Url.Content("~/Content/jquery.contextMenu.css");
+    ViewBag.StyleSheets[5] = Url.Content("~/Content/apprise.css");
+    
+}
+
+@section TitleContent {
+<script src="http://cdn.yrmc.org/js/jquery-1.8/development-bundle/ui/jquery.ui.core.js")" type="text/javascript"></script>
+<script src="http://cdn.yrmc.org/js/jquery-1.8/development-bundle/ui/jquery.ui.widget.js")" type="text/javascript"></script>
+<script src="http://cdn.yrmc.org/js/jquery-1.8/development-bundle/ui/jquery.ui.tabs.js")" type="text/javascript"></script>
+<script src="http://cdn.yrmc.org/js/jquery-plugins/jquery.escape.js")" type="text/javascript"></script>
+<script src="http://cdn.yrmc.org/js/jquery-plugins/jquery.timers.js")" type="text/javascript"></script>
+<script src="http://cdn.yrmc.org/js/jquery-plugins/jquery.url.js")" type="text/javascript"></script>
+<script src="../../Scripts/apprise-1.5.full.js" type="text/javascript"></script>
+<script src="../../Scripts/jquery.contextMenu.js" type="text/javascript"></script>
+<script src="../../Scripts/jquery.alerts.js" type="text/javascript"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+    $(document).ready(function () {
+        var _data = null;
+
+        function contextMenuWork(action, el, pos) {
+
+            var aID = $(el).attr('id');
+            var aDP = $(el).attr('department');
+            var aPN = $(el).attr('patientname');
+            var aUT = $(el).attr('unit');
+            var aPU = $(el).attr('patientaccount');
+            $(document).stopTime('onGetUnits');
+
+
+            switch (action) {
+                case "isolation":
+                    {
+                        //Update Database with setting
+                        var Notate = {
+                            'PatientName': aPN,
+                            'Unit': aUT,
+                            'Comment': "",
+                            'Color': "",
+                            'RoomType': "isolation"
+                        };
+
+                        $.post(
+                            'Notations/Create',
+                            Notate,
+                            function (data) {
+                                $(document).oneTime('10s', 'onGetUnits', onGetUnits);
+                                // if (data.Success) { alert(data.Message); }
+                            }, 'json'
+                        );
+
+                        $.each(_data.Departments, function () {
+                            if (this.Name == aDP) {
+                                $.each(this.Units, function () {
+                                    if (this.Name == aUT) {
+                                        this.RoomType = 'isolation';
+                                        $(el).trigger('onUnitUpdate', [_data]);
+                                    }
+                                });
+                            }
+                        });
+                        break;
+                    }
+                case "yellow":
+                    {
+
+                        //$("[unit='" + aUT + "']").css('border-width', '4px');
+                        //$("[unit='" + aUT + "']").css('border-color', '#E9AB17');
+                        //$("[unit='" + aUT + "']").css('background-color', 'silver');
+                        //Update Database with setting
+                        var pendingText = getPending(aUT, aDP, _data);
+                        if (pendingText.length < 2) { pendingText = " "; }
+                        apprise('Enter a note for unit:' + aUT, { 'input': pendingText, 'textOk': 'Ok' }, function (n) {
+
+                            if (n) {
+                                var AdminNote = {
+                                    'PatientName': aPN,
+                                    'Unit': aUT,
+                                    'Comment': n,
+                                    'Color': "yellow",
+                                    'RoomType': ""
+                                };
+                                $.post(
+                                    'Notations/Create',
+                                    AdminNote,
+                                    function (data) {
+                                        $(document).oneTime('10s', 'onGetUnits', onGetUnits);
+                                        // if (data.Success) { alert(data.Message); }
+                                    }, 'json'
+                                );
+
+                                $.each(_data.Departments, function () {
+                                    if (this.Name == aDP) {
+                                        $.each(this.Units, function () {
+                                            if (this.Name == aUT) {
+                                                this.Flag = 'yellow';
+                                                this.FlagComment = n;
+                                                $(el).trigger('onUnitUpdate', [_data]);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+
+
+                        break;
+                    }
+
+                case "undoadmin":
+                    {
+                        var NoAdmin = {
+                            'PatientName': aPN,
+                            'Unit': aUT,
+                            'Comment': "",
+                            'Color': ""
+                        };
+
+                        $.post(
+                            'Notations/NoAdmin',
+                            NoAdmin,
+                            function (data) {
+                                $(document).oneTime('10s', 'onGetUnits', onGetUnits);
+                            }, 'json'
+                        );
+
+                        $.each(_data.Departments, function () {
+                            if (this.Name == aDP) {
+                                $.each(this.Units, function () {
+                                    if (this.Name == aUT) {
+                                        this.Flag = '';
+                                        $(el).trigger('onUnitUpdate', [_data]);
+                                    }
+                                });
+                            }
+                        });
+
+                        break;
+                    }
+
+                case "edit":
+                    {
+                        //Popup Edit Dialog
+                        apprise('Enter a note for ' + aPN + ' in ' + aUT + ':', { 'input': true }, function (n) {
+                            if (n) {
+                                //alert(n);
+                                var Notate = {
+                                    'PatientName': aPN,
+                                    'Unit': aUT,
+                                    'Comment': n,
+                                    'Color': "",
+                                    'RoomType': ""
+                                };
+
+                                $.post(
+                                    'Notations/Create',
+                                    Notate,
+                                    function (data) {
+                                        $(document).oneTime('2s', 'onGetUnits', onGetUnits);
+                                        //if (data.Success) { alert(data.Message); }
+                                    }, 'json'
+                                );
+
+                                $.each(_data.Departments, function () {
+                                    if (this.Name == aDP) {
+                                        $.each(this.Units, function () {
+                                            if (this.Name == aUT) {
+                                                this.Patient.CommentText = n;
+                                                $(el).trigger('onGetUnits', [_data]);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+
+                        break;
+                    }
+
+                case "needscleaned":
+                    {
+                        var NeedsToBeCleaned = {
+                            'Unit': aUT
+                        };
+                        $.post(
+                            'Boards/RoomDirty',
+                            NeedsToBeCleaned,
+                            function (data) { $(document).oneTime('10s', 'onGetUnits', onGetUnits); }, 'json'
+                        );
+
+                        $.each(_data.Departments, function () {
+                            if (this.Name == aDP) {
+                                $.each(this.Units, function () {
+                                    if (this.Name == aUT) {
+                                        this.Patient.IsClean = false;
+                                        $(el).trigger('onUnitUpdate', [_data]);
+                                    }
+                                });
+                            }
+                        });
+                        break;
+                    }
+
+                case "allclean":
+                    {
+                        var RoomCleaned = {
+                            'Unit': aUT
+                        };
+                        $.post(
+                            'Boards/RoomClean',
+                            RoomCleaned,
+                            function (data) { $(document).oneTime('10s', 'onGetUnits', onGetUnits); }, 'json'
+                        );
+
+                        $.each(_data.Departments, function () {
+                            if (this.Name == aDP) {
+                                $.each(this.Units, function () {
+                                    if (this.Name == aUT) {
+                                        this.Patient.IsClean = true;
+                                        $(el).trigger('onUnitUpdate', [_data]);
+                                    }
+                                });
+                            }
+                        });
+                        break;
+                    }
+
+                case "available":
+                    {
+
+                        //$("[unit='" + aUT + "']").css('background-color', 'white');
+
+                        var RoomGood = {
+                            'PatientName': aPN,
+                            'Unit': aUT
+                        };
+                        $.post(
+                            'Notations/RoomAvailable',
+                            RoomGood,
+                            function (data) {
+                                $(document).oneTime('10s', 'onGetUnits', onGetUnits);
+                            }, 'json'
+                        );
+
+                        $.each(_data.Departments, function () {
+                            if (this.Name == aDP) {
+                                $.each(this.Units, function () {
+                                    if (this.Name == aUT) {
+                                        this.RoomType = '';
+                                        $(el).trigger('onUnitUpdate', [_data]);
+                                    }
+                                });
+                            }
+                        });
+                        break;
+                    }
+
+                case "unavailable":
+                    {
+                        //$("[unit='" + aUT + "']").css('background-color', 'white');
+                        //Update Database with setting
+                        var Notate = {
+                            'PatientName': aPN,
+                            'Unit': aUT,
+                            'Comment': "",
+                            'Color': "",
+                            'RoomType': "unavailable"
+                        };
+                        $.post(
+                            'Notations/Create',
+                            Notate,
+                            function (data) {
+                                $(document).oneTime('10s', 'onGetUnits', onGetUnits);
+                            }, 'json'
+                        );
+
+                        $.each(_data.Departments, function () {
+                            if (this.Name == aDP) {
+                                $.each(this.Units, function () {
+                                    if (this.Name == aUT) {
+                                        this.RoomType = 'unavailable';
+                                        $(el).trigger('onUnitUpdate', [_data]);
+                                    }
+                                });
+                            }
+                        });
+                        break;
+                    }
+                case "comments":
+                    {
+                        //Popup All comments on the patient
+                        if (aPN != '') {
+                            var Comment = {
+                                'PatientAccount': aPU
+                            };
+                            $.post(
+                               'Comments/Index',
+                                Comment,
+                                function (data) {
+                                    if (data.Success) {
+                                        jAlert(data.Message, 'Comments for: ' + aPN + ' in unit ' + aUT);
+                                        $(document).oneTime('3s', 'onGetUnits', onGetUnits);
+                                    }
+                                }, 'json'
+                            );
+                        }
+                        break;
+                    }
+            }
+
+            //$(document).oneTime('1s', 'onGetUnits', onGetUnits);
+
+        }
+
+
+        function onCreateLocation(data) {
+            // Locations
+            for (var locationIdx in data) {
+                var location = data[locationIdx];
+
+                if ($('#loc-' + $.escape(location.Name)).length == 0) {
+                    // Create Location
+                    $('#tabs').tabs('add', '#tabs-' + location.Name, location.DisplayName, locationIdx);
+                    $('#tabs-' + $.escape(location.Name))
+                        .attr({
+                            location: location.Name
+                        })
+                        .html($('<table/>').append($('<tr/>', { id: 'loc-' + location.Name })
+                            .addClass('portlet-location')
+                            .bind('onLocationUpdate', onLocationUpdate)
+                            .attr({
+                                location: location.Name,
+                                locationIdx: locationIdx
+                            })));
+
+                    getUnits($('#tabs-' + $.escape(location.Name)).index() - 1);
+                }
+            }
+        }
+
+        function onCreateUnit(data) {
+
+            var location = data;
+
+            // Department
+            for (var departmentIdx in location.Departments) {
+                var department = location.Departments[departmentIdx];
+
+                if ($('#loc-' + $.escape(location.Name) + '-dept-' + $.escape(department.Name)).length == 0) {
+                    // Create Department
+                    var departmentPortletContent = $('<div/>', { id: 'loc-' + location.Name + '-dept-' + department.Name + '-content' })
+                        .addClass('column portlet-department-content')
+
+                    var departmentPortlet = $('<td/>', { id: 'loc-' + location.Name + '-dept-' + department.Name, vAlign: 'top' })
+                        .addClass('column portlet portlet-department ui-widget ui-widget-content ui-corner-all')
+                        .bind('onDepartmentUpdate', onDepartmentUpdate)
+                        .attr({
+                            location: location.Name,
+                            department: department.Name
+                        })
+                        .append($('<div/>')
+                            .addClass('portlet-department-header')
+                            .html(
+                                department.Name
+                            ))
+                        .append(departmentPortletContent);
+
+                    if (departmentIdx == 0) {
+                        $('#loc-' + $.escape(location.Name)).prepend(departmentPortlet);
+                    } else {
+                        departmentPortlet.insertAfter('#loc-' + $.escape(location.Name) + '-dept-' + $.escape(prevDepartment.Name));
+                    }
+                }
+
+                // Unit
+                for (var unitIdx in department.Units) {
+                    var unit = department.Units[unitIdx];
+                    var patient = unit.Patient;
+
+                    if ($('#loc-' + $.escape(location.Name) + '-dept-' + $.escape(department.Name) + '-unit-' + $.escape(unit.Name)).length == 0) {
+                        // Create Unit
+                        var unitPortlet = $('<div/>', { id: 'loc-' + location.Name + '-dept-' + department.Name + '-unit-' + unit.Name })
+                            .addClass('portlet-unit ui-widget-content ui-corner-all')
+                            .addClass('portlet-unit')
+                            .addClass(
+                                ((patient.Name != '') ? ((patient.DischargeStatus == 'P')
+                                                      ? ('portlet-status-pending') : ('portlet-status-unavailable')
+                                ) : ((patient.IsClean == true) ? (
+                                    'portlet-status-available') : ('portlet-status-dirty')
+                                ))
+                            )
+                            .bind('onUnitUpdate', onUnitUpdate)
+                            .attr({
+                                location: location.Name,
+                                department: department.Name,
+                                unit: unit.Name,
+                                unitFlag: unit.Flag,
+                                unitRoomType: unit.RoomType,
+                                unitFlagComment: unit.FlagComment,
+                                patientName: patient.Name,
+                                patientGender: patient.Gender,
+                                patientAge: patient.Age,
+                                patientDischargeStatus: patient.DischargeStatus,
+                                patientDescription: patient.Description,
+                                patientAccount: patient.AccountNumber,
+                                patientComment: patient.CommentText,
+                                patientIsClean: patient.IsClean
+
+                            })
+                            .append($('<div/>')
+                                .addClass('portlet-unit-header')
+                                .html(unit.Name))
+                            .append($('<div/>')
+                                .addClass('portlet-unit-content')
+                                .html(getPatientContent(patient)))
+                        // Patient notes
+                        unitPortlet.append($('<div/>', { id: 'pn' + unit.Name })
+                                        .html('<font style="color:blue">' + patient.CommentText + '</font>'));
+
+                        // If pending admissions
+                        if ($.escape(unit.Flag) == "yellow") {
+                            unitPortlet.append($('<div/>', { id: 'mm' + unit.Name })
+                                .html('<center><img src="../../Content/flag-yellow.png"/> Pending Admissions <img src="../../Content/flag-yellow.png"/></center>'
+                                + unit.FlagComment))
+                        }
+
+
+
+                        // Decide when to show a context menu and what type.
+                        if (patient.AccountNumber.length != 0) {
+                            unitPortlet.contextMenu({ menu: 'myPatientMenu' }, function (action, el, pos) { contextMenuWork(action, el, pos); });
+                        }
+                        else if (patient.AccountNumber.length == 0 && patient.Name.length == 0) {
+                            unitPortlet.contextMenu({ menu: 'myRoomMenu' }, function (action, el, pos) { contextMenuWork(action, el, pos); });
+                        }
+                        else {
+                            unitPortlet.contextMenu({ menu: 'myBlankMenu' }, function (action, el, pos) { contextMenuWork(action, el, pos); });
+                        }
+
+                        if (unitIdx == 0) {
+                            $('#loc-' + $.escape(location.Name) + '-dept-' + $.escape(department.Name) + '-content').prepend(unitPortlet);
+                        } else {
+                            unitPortlet.insertAfter('#loc-' + $.escape(location.Name) + '-dept-' + $.escape(department.Name) + '-unit-' + $.escape(prevUnit.Name));
+                        }
+
+                        onSetFlag($.escape(unit.Name), $.escape(unit.RoomType));
+                        //alert($.escape(unit.Name) + ' ' + $.escape(patient.Flag));
+
+                        var prevUnit = unit;
+                    }
+                }
+
+                var prevDepartment = department;
+            }
+        }
+
+        function onLocationUpdate(e, data) {
+            for (var locationIdx in data) {
+                var location = data[locationIdx];
+
+                if ($(this).attr('location') == location.Name) {
+                    return;
+                }
+            }
+
+            // Delete
+            $('#tabs').tabs('remove', $('#tabs').find('.ui-tabs-panel[location=\'' + $(this).attr('location') + '\']').index() - 1);
+        }
+
+        function onDepartmentUpdate(e, data) {
+            var location = data;
+
+            if ($(this).attr('location') == location.Name) {
+
+                for (var departmentIdx in location.Departments) {
+                    var department = location.Departments[departmentIdx];
+
+                    if ($(this).attr('department') == department.Name) {
+                        return;
+                    }
+                }
+
+                // Delete
+                $(this).remove();
+            }
+        }
+
+        // Handles all updates for all rooms
+        function onUnitUpdate(e, data) {
+            var location = data;
+
+            if ($(this).attr('location') == location.Name) {
+
+                for (var departmentIdx in location.Departments) {
+                    var department = location.Departments[departmentIdx];
+
+                    if ($(this).attr('department') == department.Name) {
+
+                        for (var unitIdx in department.Units) {
+                            var unit = department.Units[unitIdx];
+
+                            if ($(this).attr('unit') == unit.Name) {
+                                var patient = unit.Patient;
+                                var updated = false;
+
+                                if ($(this).attr('patientName') != patient.Name ||
+                                    $(this).attr('patientGender') != patient.Gender ||
+                                    $(this).attr('patientAge') != patient.Age ||
+                                    $(this).attr('patientDescription') != patient.Description ||
+                                    $(this).attr('patientAccount') != patient.AccountNumber ||
+                                    $(this).attr('patientComment') != patient.CommentText ||
+                                    $(this).attr('patientIsClean') != patient.Isclean ||
+                                    $(this).attr('unitFlag') != unit.Flag ||
+                                    $(this).attr('unitRoomType') != unit.RoomType) {
+
+                                    $(this).find('.portlet-unit-content').html(getPatientContent(patient));
+
+                                    if ($('#pn' + $.escape(unit.Name)).length == 0) {
+                                        $("[unit='" + $.escape(unit.Name) + "']").append($('<div/>', { id: 'pn' + unit.Name })
+                                        .html('<font style="color:blue">' + patient.CommentText + '</font>'));
+                                    }
+                                    else {
+                                        $('#pn' + $.escape(unit.Name)).html('<font style="color:blue">' + patient.CommentText + '</font>');
+                                    }
+
+                                    onSetFlag($.escape(unit.Name), $.escape(unit.RoomType));
+
+                                    if ((unit.Flag == "yellow") && $('#mm' + $.escape(unit.Name)).length == 0) {
+                                        $("[unit='" + $.escape(unit.Name) + "']").append($('<div/>', { id: 'mm' + unit.Name })
+                                        .html('<center><img src="../../Content/flag-yellow.png"/> Pending Admissions <img src="../../Content/flag-yellow.png"/></center>'
+                                        + unit.FlagComment));
+                                    }
+                                    else if (unit.Flag == "yellow") {
+                                        $('#mm' + $.escape(unit.Name)).html("");
+                                        $('#mm' + $.escape(unit.Name)).remove();
+                                        $("[unit='" + $.escape(unit.Name) + "']").append($('<div/>', { id: 'mm' + unit.Name })
+                                        .html('<center><img src="../../Content/flag-yellow.png"/> Pending Admissions <img src="../../Content/flag-yellow.png"/></center>'
+                                        + unit.FlagComment));
+                                    }
+                                    else if (unit.Flag != "yellow") {
+                                        $('#mm' + $.escape(unit.Name)).html("");
+                                        $('#mm' + $.escape(unit.Name)).remove();
+                                    }
+
+
+                                    updated = true;
+                                }
+
+                                // Decide when to show a context menu and what type.
+                                $("[unit='" + $.escape(unit.Name) + "']").destroyContextMenu();
+                                if (patient.AccountNumber.length != 0) {
+                                    $("[unit='" + $.escape(unit.Name) + "']").contextMenu({ menu: 'myPatientMenu' }, function (action, el, pos) { contextMenuWork(action, el, pos); });
+                                    $("[unit='" + $.escape(unit.Name) + "']").disableContextMenuItems();
+                                }
+                                else if (patient.AccountNumber.length == 0 && $.escape(patient.Name).length == 0) {
+                                    $("[unit='" + $.escape(unit.Name) + "']").contextMenu({ menu: 'myRoomMenu' }, function (action, el, pos) { contextMenuWork(action, el, pos); });
+                                }
+                                else {
+                                    $("[unit='" + $.escape(unit.Name) + "']").contextMenu({ menu: 'myBlankMenu' }, function (action, el, pos) { contextMenuWork(action, el, pos); });
+                                }
+
+                                if ($(this).attr('patientDischargeStatus') != patient.DischargeStatus) {
+                                    updated = true;
+                                }
+
+                                if (updated) {
+                                    if (patient.Name == '') {
+                                        setPatientAttributes(this);
+                                    } else {
+                                        setPatientAttributes(this, patient);
+                                    }
+
+                                    // Effects
+                                    if (patient.Name == '') {
+                                        if (patient.IsClean) {
+                                            $(this).addClass('portlet-status-available', 500)
+                                            .removeClass('portlet-status-dirty', 500)
+                                            .removeClass('portlet-status-unavailable portlet-status-pending', 500);
+                                        } else {
+                                            $(this).addClass('portlet-status-dirty', 500)
+                                            .removeClass('portlet-status-available', 500)
+                                            .removeClass('portlet-status-unavailable portlet-status-pending', 500);
+                                        }
+                                    } else if (patient.DischargeStatus == 'P') {
+                                        $(this).addClass('portlet-status-pending', 500)
+                                            .removeClass('portlet-status-available portlet-status-unavailable', 500);
+                                    } else {
+                                        $(this).addClass('portlet-status-unavailable', 500)
+                                            .removeClass('portlet-status-available portlet-status-pending', 500);
+                                    }
+                                }
+
+                                return;
+                            }
+                        }
+
+                        // Delete
+                        $(this).remove();
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Displays the content on a patient
+        function getPatientContent(patient) {
+            if (patient.Name != '') {
+                return '<div style=\'float:right; padding-left: 3px;\'>' + patient.Gender + '&nbsp;&nbsp;' + patient.Age + '</div>' +
+                    '<div>' + patient.Name + '<br/>ACCT#: ' + patient.AccountNumber + '<br/>' +
+                        patient.Description + '</div>';
+            } else {
+                return ' ' + '<br/><font style="color:yellow">' + patient.CommentText + '</font>';
+            }
+        }
+
+        // Sets up the room settings for isolation and unavailable
+        function onSetFlag(unitn, pflag) {
+            if (pflag == 'isolation') {
+                $("[unit='" + unitn + "']").css('border-width', '4px');
+                $("[unit='" + unitn + "']").css('border-color', 'purple');
+                //$("[unit='" + unitn + "']").css('background-color', 'white');
+            }
+            else if (pflag == 'unavailable') {
+                $("[unit='" + unitn + "']").css('border-width', '4px');
+                $("[unit='" + unitn + "']").css('border-color', 'red');
+                //$("[unit='" + unitn + "']").css('background-color', 'white');
+            }
+            else {
+                $("[unit='" + unitn + "']").css('border-width', '1px');
+                $("[unit='" + unitn + "']").css('border-color', 'black');
+                //                $("[unit='" + unitn + "']").css('background-color', 'white');
+            }
+
+        }
+
+        // Sets the patient attributes or clears them if room is empty
+        function setPatientAttributes(element, patient) {
+            if (patient) {
+                $(element).attr({
+                    patientName: patient.Name,
+                    patientGender: patient.Gender,
+                    patientAge: patient.Age,
+                    patientDischargeStatus: patient.DischargeStatus,
+                    patientDescription: patient.Description,
+                    patientAccount: patient.AccountNumber,
+                    patientComment: patient.CommentText,
+                    patientIsClean: patient.IsClean
+                });
+            } else {
+                $(element).attr({
+                    patientName: '',
+                    patientGender: '',
+                    patientAge: '',
+                    patientDischargeStatus: '',
+                    patientDescription: '',
+                    patientAccount: '',
+                    patientComment: '',
+                    patientIsClean: false
+                });
+            }
+        }
+
+        // Initializes the page
+        function initialize() {
+            $.ajaxSetup({ cache: false });
+
+            $('#tabs').bind('tabsselect', function (event, ui) {
+                getUnits(ui.index);
+            });
+
+            $(document).everyTime('60s', 'onGetLocations', onGetLocations);
+            onGetLocations();
+        }
+
+        // Gets all locations
+        function onGetLocations() {
+            $(document).stopTime('onGetUnits');
+
+            var existingTabs = $('#tabs').tabs('length') > 0;
+
+            if (!existingTabs) {
+                $('#tabs').tabs();
+                $('#tabs').css('display', 'none');
+            }
+
+            var params = null;
+
+            if ($.url.param('id') != '')
+                params = { id: $.url.param('id') };
+
+            $.getJSON('@Url.Content("~/locations")', params, function (data) {
+                $('.portlet-location').trigger('onLocationUpdate', [data]);
+                onCreateLocation(data);
+
+                $(document).oneTime('0s', 'onGetUnits', onGetUnits);
+            });
+        }
+
+        // Figures out which location is selected and then calls the getUnits function
+        function onGetUnits() {
+            var selectedIdx = $('#tabs').tabs('option', 'selected');
+
+            if (selectedIdx >= 0)
+                getUnits(selectedIdx);
+        }
+
+        // Function gets all units in the selected Location
+        function getUnits(selectedIdx) {
+            $(document).stopTime('onGetUnits');
+
+            if (selectedIdx >= 0) {
+                var selectedTab = $('#tabs').find('.ui-tabs-panel:eq(' + selectedIdx + ')');
+
+                $.getJSON('@Url.Content("~/boards")', { id: selectedTab.attr('location') }, function (data) {
+
+                    if (selectedIdx == $('#tabs').tabs('option', 'selected'))
+                        _data = data;
+
+                    $('.portlet-department').trigger('onDepartmentUpdate', [data]);
+                    $('.portlet-unit').trigger('onUnitUpdate', [data]);
+
+                    onCreateUnit(data);
+
+                    $('#tabs').css('display', 'inline-block');
+                });
+            }
+
+            $(document).oneTime('10s', 'onGetUnits', onGetUnits);
+        }
+
+        // Function returns the note on a pending admission to display in the popup comment box.
+        function getPending(unitname, unitdept, data) {
+            var location = data;
+            for (var departmentIdx in location.Departments) {
+                var department = location.Departments[departmentIdx];
+
+                if (unitdept == department.Name) {
+
+                    for (var unitIdx in department.Units) {
+                        var unit = department.Units[unitIdx];
+
+                        if (unitname == unit.Name) {
+                            return unit.FlagComment;
+                        } 
+                    }
+                } 
+            }
+        }
+
+        initialize();
+    });
+</script>
+
+
+
+<div id="container">
+  <div id="tabs">
+    <ul>
+	</ul> 
+  </div>
+</div>
+
+
+<ul id="myRoomMenu" class="contextMenu">
+    <li class="allclean"><a href="#allclean">Clean</a></li>        
+    <li class="needscleaned"><a href="#needscleaned">Dirty</a></li>   
+    <li class="yellow separator"><a href="#yellow">Pending Admission</a></li> 
+    <li class="undoadmin"><a href="#undoadmin">Cancel Pending Admission</a></li> 
+    <li class="available separator"><a href="#available">Available</a></li>             
+    <li class="isolation"><a href="#isolation">Isolation</a></li> 
+    <li class="unavailable"><a href="#unavailable">Unavailable</a></li> 
+ 
+
+</ul>
+
+<ul id="myPatientMenu" class="contextMenu">
+    <li class="edit"><a href="#edit">Enter a Comment</a></li>                    
+    <li class="comments"><a href="#comments">View all Comments</a></li> 
+    <li class="yellow separator"><a href="#yellow">Pending Admission</a></li> 
+    <li class="undoadmin"><a href="#undoadmin">Cancel Pending Admission</a></li> 
+    <li class="available separator"><a href="#available">Available</a></li>             
+    <li class="isolation"><a href="#isolation">Isolation</a></li> 
+    <li class="unavailable"><a href="#unavailable">Unavailable</a></li> 
+</ul>
+
+<ul id="myBlankMenu" class="contextMenu" style="visibility:hidden">
+
+
+</ul>
+
+

@@ -1,0 +1,5 @@
+C:\Projects\NursingBedBoard\YRMC.Nursing.BedBoard.Web.Mvc\YRMC.Nursing.BedBoard.Web.Mvc\bin\YRMC.Nursing.BedBoard.Web.Mvc.dll
+C:\Projects\NursingBedBoard\YRMC.Nursing.BedBoard.Web.Mvc\YRMC.Nursing.BedBoard.Web.Mvc\bin\YRMC.Nursing.BedBoard.Web.Mvc.pdb
+C:\Projects\NursingBedBoard\YRMC.Nursing.BedBoard.Web.Mvc\YRMC.Nursing.BedBoard.Web.Mvc\obj\Debug\ResolveAssemblyReference.cache
+C:\Projects\NursingBedBoard\YRMC.Nursing.BedBoard.Web.Mvc\YRMC.Nursing.BedBoard.Web.Mvc\obj\Debug\YRMC.Nursing.BedBoard.Web.Mvc.dll
+C:\Projects\NursingBedBoard\YRMC.Nursing.BedBoard.Web.Mvc\YRMC.Nursing.BedBoard.Web.Mvc\obj\Debug\YRMC.Nursing.BedBoard.Web.Mvc.pdb

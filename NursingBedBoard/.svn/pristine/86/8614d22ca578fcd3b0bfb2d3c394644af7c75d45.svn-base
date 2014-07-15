@@ -1,0 +1,43 @@
+﻿table {table-layout:fixed; }
+.column { width: 170px; /*float: left;*/ }
+.portlet { margin: 0 1em 1em 0; }
+.portlet-location { white-space: nowrap; }
+.portlet-department { display: inline-block; white-space: normal; }
+.portlet-department-header { border: none; font-weight: bold; background: none; background-color: White; color: Black; margin: 0.3em; padding-bottom: 4px; padding-left: 0.2em; }
+.portlet-department-content { }
+.portlet-unit { margin: 0.3em; padding: 0.4em; border: 1px solid Black; font-size:inherit; }
+.portlet-unit-header { font-weight: bold; }
+.portlet-unit-content { white-space: normal; }
+.portlet-status-available { background: none; background-color: Green; color: White; }
+.portlet-status-dirty { background: none; background-color: #787878; color: White; }
+.portlet-status-pending { background: none; background-color: Yellow; color: Black; }
+.portlet-status-unavailable { background: none; background-color: #F8F8F8; color: Black; }
+.portlet-unit-flag-purple {border-color: #989898 #cbcbcb #989898 #989898; border-style: solid solid solid none; border-width: 1px 1px 1px medium;}
+	
+body {
+	    font-size: 62.5%;
+    }
+
+#mask {
+  position:absolute;
+  z-index:9000;
+  background-color:#000;
+  display:none;
+}
+   
+#boxes .window {
+  position:absolute;
+  width:440px;
+  height:200px;
+  display:none;
+  z-index:9999;
+  padding:20px;
+}
+ 
+ 
+/* Customize your modal window here, you can add background image too */
+#boxes #dialog {
+  width:375px; 
+  height:203px;
+}
+
