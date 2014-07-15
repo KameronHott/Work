@@ -1,0 +1,15 @@
+c:\users\khott\documents\visual studio 2010\Projects\Employee Manager\Employee Manager\bin\Debug\Employee Manager.exe
+c:\users\khott\documents\visual studio 2010\Projects\Employee Manager\Employee Manager\bin\Debug\Employee Manager.pdb
+c:\users\khott\documents\visual studio 2010\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee_Manager.Form1.resources
+c:\users\khott\documents\visual studio 2010\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee_Manager.Properties.Resources.resources
+c:\users\khott\documents\visual studio 2010\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee Manager.csproj.GenerateResource.Cache
+c:\users\khott\documents\visual studio 2010\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee Manager.exe
+c:\users\khott\documents\visual studio 2010\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee Manager.pdb
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee_Manager.Form1.resources
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee_Manager.Properties.Resources.resources
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee Manager.csproj.GenerateResource.Cache
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Employee Manager.csprojResolveAssemblyReference.cache
+C:\Projects\Employee Manager\Employee Manager\bin\Debug\Account Manager.exe
+C:\Projects\Employee Manager\Employee Manager\bin\Debug\Account Manager.pdb
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Account Manager.exe
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Debug\Account Manager.pdb

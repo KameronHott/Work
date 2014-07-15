@@ -1,0 +1,10 @@
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Release\Employee_Manager.Form1.resources
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Release\Employee_Manager.Properties.Resources.resources
+C:\Projects\Employee Manager\Employee Manager\bin\Release\Account Manager.exe
+C:\Projects\Employee Manager\Employee Manager\bin\Release\Account Manager.pdb
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Release\Account Manager.exe
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Release\Account Manager.pdb
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Release\Employee_Manager.Splash.resources
+C:\Projects\Employee Manager\Employee Manager\bin\Release\Account Manager.exe.config
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Release\Employee Manager.csproj.GenerateResource.Cache
+C:\Projects\Employee Manager\Employee Manager\obj\x86\Release\Employee Manager.csprojResolveAssemblyReference.cache
