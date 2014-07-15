@@ -1,0 +1,20 @@
+C:\Projects\Employee Manager\Employee Manager\bin\x64\Release\Account Manager.exe.config
+C:\Projects\Employee Manager\Employee Manager\bin\x64\Release\Account Manager.exe
+C:\Projects\Employee Manager\Employee Manager\bin\x64\Release\Account Manager.pdb
+C:\Projects\Employee Manager\Employee Manager\obj\x64\Release\Employee_Manager.Form1.resources
+C:\Projects\Employee Manager\Employee Manager\obj\x64\Release\Employee_Manager.Properties.Resources.resources
+C:\Projects\Employee Manager\Employee Manager\obj\x64\Release\Employee_Manager.Splash.resources
+C:\Projects\Employee Manager\Employee Manager\obj\x64\Release\Employee Manager.csproj.GenerateResource.Cache
+C:\Projects\Employee Manager\Employee Manager\obj\x64\Release\Account Manager.exe
+C:\Projects\Employee Manager\Employee Manager\obj\x64\Release\Account Manager.pdb
+C:\Projects\Employee Manager\Employee Manager\obj\x64\Release\Employee Manager.csprojResolveAssemblyReference.cache
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\bin\x64\Release\Account Manager.exe.config
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\obj\x64\Release\Account Manager.exe
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\obj\x64\Release\Account Manager.pdb
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\bin\x64\Release\Account Manager.exe
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\bin\x64\Release\Account Manager.pdb
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\obj\x64\Release\Employee Manager.csprojResolveAssemblyReference.cache
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\obj\x64\Release\Employee_Manager.Form1.resources
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\obj\x64\Release\Employee_Manager.Properties.Resources.resources
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\obj\x64\Release\Employee_Manager.Splash.resources
+C:\Temp\Dropbox\Code\Employee Manager\Employee Manager\obj\x64\Release\Employee Manager.csproj.GenerateResource.Cache
